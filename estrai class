@@ -12,6 +12,9 @@ public class VerifyJavaVersion {
         // Directory principale contenente le sottocartelle con i file .jar
         String directoryPath = "path/to/directory";
         
+        // Dichiarazione della variabile contatore
+        int totalFiles = 0;
+        
         // Ottiene un array di sottocartelle nella directory principale
         File directory = new File(directoryPath);
         File[] subdirectories = directory.listFiles(File::isDirectory);
@@ -38,6 +41,7 @@ public class VerifyJavaVersion {
                                     byte[] bytes = sb.toString().getBytes("ISO-8859-1");
                                     int majorVersion = ((bytes[6] & 0xFF) << 8) | (bytes[7] & 0xFF);
                                     System.out.println("Il file " + entry.getName() + " all'interno di " + jarFile.getName() + " ha la versione principale del bytecode " + majorVersion);
+                                    totalFiles++; // Incrementa la variabile contatore
                                     break;
                                 }
                             }
@@ -46,6 +50,8 @@ public class VerifyJavaVersion {
                 }
             }
         }
+        
+        // Stampa il numero totale di file letti
+        System.out.println("Numero totale di file letti: " + totalFiles);
     }
 }
-
