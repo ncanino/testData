@@ -1,8 +1,10 @@
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -12,8 +14,8 @@ public class VerifyJavaVersion {
         // Directory principale contenente le sottocartelle con i file .jar
         String directoryPath = "path/to/directory";
         
-        // Dichiarazione della variabile contatore
-        int totalFiles = 0;
+        // Dichiarazione della lista dei file trovati
+        List<String> foundFiles = new ArrayList<>();
         
         // Ottiene un array di sottocartelle nella directory principale
         File directory = new File(directoryPath);
@@ -31,17 +33,14 @@ public class VerifyJavaVersion {
                             while (entries.hasMoreElements()) {
                                 JarEntry entry = entries.nextElement();
                                 if (entry.getName().endsWith(".class")) {
-                                    InputStream is = jar.getInputStream(entry);
-                                    byte[] buffer = new byte[4096];
-                                    int bytesRead;
-                                    StringBuilder sb = new StringBuilder();
-                                    while ((bytesRead = is.read(buffer)) != -1) {
-                                        sb.append(new String(buffer, 0, bytesRead, "UTF-8"));
-                                    }
-                                    byte[] bytes = sb.toString().getBytes("ISO-8859-1");
+                                    // Legge il file .class e verifica la versione principale del bytecode
+                                    byte[] bytes = readAllBytes(jar.getInputStream(entry));
                                     int majorVersion = ((bytes[6] & 0xFF) << 8) | (bytes[7] & 0xFF);
                                     System.out.println("Il file " + entry.getName() + " all'interno di " + jarFile.getName() + " ha la versione principale del bytecode " + majorVersion);
-                                    totalFiles++; // Incrementa la variabile contatore
+                                    
+                                    // Aggiunge il file trovato alla lista
+                                    foundFiles.add(entry.getName());
+                                    
                                     break;
                                 }
                             }
@@ -51,7 +50,26 @@ public class VerifyJavaVersion {
             }
         }
         
-        // Stampa il numero totale di file letti
-        System.out.println("Numero totale di file letti: " + totalFiles);
+        // Verifica quali file non sono stati trovati
+        System.out.println("\nI seguenti file non sono stati trovati o verificati:");
+        Files.walk(directory.toPath())
+            .filter(path -> path.toString().endsWith(".class"))
+            .map(path -> path.toString().replace(directory.toString(), ""))
+            .forEach(path -> {
+                if (!foundFiles.contains(path)) {
+                    System.out.println(path);
+                }
+            });
+    }
+    
+    // Legge tutti i byte da un InputStream e restituisce un array di byte
+    private static byte[] readAllBytes(InputStream is) throws IOException {
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+        StringBuilder sb = new StringBuilder();
+        while ((bytesRead = is.read(buffer)) != -1) {
+            sb.append(new String(buffer, 0, bytesRead, "UTF-8"));
+        }
+        return sb.toString().getBytes("ISO-8859-1");
     }
 }
