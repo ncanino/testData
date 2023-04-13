@@ -1,0 +1,9 @@
+L'errore UnsupportedClassVersionError si verifica quando si tenta di eseguire del codice compilato con una versione di Java diversa da quella presente nell'ambiente in cui viene eseguito.
+
+Nel tuo caso, hai effettuato un upgrade di compilazione a Java 8, ma stai cercando di eseguire il codice su un ambiente WebSphere 8.5 che potrebbe essere eseguito su una versione precedente di Java.
+
+Per risolvere questo problema, devi assicurarti che l'ambiente WebSphere 8.5 supporti Java 8. In caso contrario, devi aggiornare l'ambiente a una versione che supporti Java 8 o ri-compilare il tuo codice con una versione di Java compatibile con l'ambiente in cui deve essere eseguito.
+
+Inoltre, se il tuo progetto utilizza librerie esterne, devi assicurarti che queste siano compatibili con Java 8 e siano incluse nel classpath del tuo progetto. Se ci sono librerie incompatibili, potrebbe essere necessario aggiornarle o cercare alternative compatibili con Java 8.
+
+Infine, verifica anche che la versione di Java utilizzata per il deploy sia effettivamente la versione 8. Potrebbe essere necessario configurare l'ambiente di esecuzione per utilizzare la versione corretta di Java.
