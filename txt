@@ -1,2 +1,1 @@
-[[1;31mERROR[m] [1;31mPlease refer to C:\Users\e02883\Desktop\MX SMS Alert\WORKSPACE MX\mx-smsalert\com.bnpp.sms.business\target\surefire-reports for the individual test results.[m
-[[1;31mERROR[m] [1;31mPlease refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+Bean property 'hibernateTemplate' is not writable or has an invalid setter method. Does the parameter type of the setter match the return type of the getter?
