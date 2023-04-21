@@ -21,3 +21,6 @@
         </props>
     </property>
 </bean>
+
+
+https://stackoverflow.com/questions/27102265/how-to-configure-hibernate-spring-and-apache-dbcp-for-connection-pooling
