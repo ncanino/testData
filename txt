@@ -1,1 +1,23 @@
-17:16:29.985 [main] INFO  jdfStartupLogger - ERROR CREATING APPLICATIONCONTEXT INSTANCE: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'SMSALERT.loggingHandler' defined in class path resource [META-INF/spring-test/businessComponents-context.xml]: Cannot resolve reference to bean 'SMSAlert.loggingDao' while setting bean property 'loggingDao'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'SMSAlert.loggingDao' defined in class path resource [META-INF/spring-test/dataAccessComponents-context.xml]: Cannot resolve reference to bean 'SMSAlert.sessionFactory' while setting bean property 'sessionFactory'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'SMSAlert.sessionFactory' defined in class path resource [META-INF/spring-test/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is java.lang.NoClassDefFoundError: Could not initialize class org.hibernate.boot.jaxb.internal.stax.LocalSchema
+<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+    <property name="url" value="jdbc:mysql://localhost:3306/app"/>
+    <property name="username" value="foo"/>
+    <property name="password" value="bar"/>
+    // Other DBCP properties here
+</bean>
+
+<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+    <property name="dataSource"  ref="dataSource"   
+    <property name="packagesToScan">
+        <list>
+            <value>com.my.app.model</value>
+        </list>
+    </property>
+    <property name="hibernateProperties">
+        <props>
+            <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+            <prop key="hibernate.show_sql">true</prop>
+            <prop key="hibernate.hbm2ddl.auto">update</prop>
+        </props>
+    </property>
+</bean>
