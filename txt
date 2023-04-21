@@ -24,3 +24,6 @@
 
 
 https://stackoverflow.com/questions/27102265/how-to-configure-hibernate-spring-and-apache-dbcp-for-connection-pooling
+
+
+Error creating bean with name 'SMSAlert.sessionFactory' defined in class path resource [META-INF/spring-test/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is java.lang.NoClassDefFoundError: Could not initialize class org.hibernate.boot.jaxb.internal.stax.LocalSchema
