@@ -116,3 +116,27 @@ NEW:
 	
 </beans>
 
+
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'SMSAlert.sessionFactory' defined in class path resource [META-INF/spring-test/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is java.lang.NoClassDefFoundError: Could not initialize class org.hibernate.boot.jaxb.internal.stax.LocalSchema
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1583)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:545)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:482)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:306)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:230)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:302)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:197)
+	at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:351)
+	... 59 more
+Caused by: java.lang.NoClassDefFoundError: Could not initialize class org.hibernate.boot.jaxb.internal.stax.LocalSchema
+	at org.hibernate.boot.jaxb.internal.MappingBinder.doBind(MappingBinder.java:61)
+	at org.hibernate.boot.jaxb.internal.AbstractBinder.doBind(AbstractBinder.java:102)
+	at org.hibernate.boot.jaxb.internal.AbstractBinder.bind(AbstractBinder.java:57)
+	at org.hibernate.boot.jaxb.internal.InputStreamXmlSource.doBind(InputStreamXmlSource.java:43)
+	at org.hibernate.boot.jaxb.internal.InputStreamXmlSource.doBind(InputStreamXmlSource.java:38)
+	at org.hibernate.boot.spi.XmlMappingBinderAccess.bind(XmlMappingBinderAccess.java:94)
+	at org.hibernate.boot.MetadataSources.addInputStream(MetadataSources.java:381)
+	at org.hibernate.cfg.Configuration.addInputStream(Configuration.java:476)
+	at org.springframework.orm.hibernate4.LocalSessionFactoryBean.afterPropertiesSet(LocalSessionFactoryBean.java:356)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1642)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1579)
+	... 66 more
