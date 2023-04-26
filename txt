@@ -1,29 +1,61 @@
-<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-    <property name="url" value="jdbc:mysql://localhost:3306/app"/>
-    <property name="username" value="foo"/>
-    <property name="password" value="bar"/>
-    // Other DBCP properties here
-</bean>
+<?xml version="1.0" encoding="UTF-8"?>
 
-<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
-    <property name="dataSource"  ref="dataSource"   
-    <property name="packagesToScan">
-        <list>
-            <value>com.my.app.model</value>
-        </list>
-    </property>
-    <property name="hibernateProperties">
-        <props>
-            <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
-            <prop key="hibernate.show_sql">true</prop>
-            <prop key="hibernate.hbm2ddl.auto">update</prop>
-        </props>
-    </property>
-</bean>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="
+				http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd				
+				http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">	
 
 
-https://stackoverflow.com/questions/27102265/how-to-configure-hibernate-spring-and-apache-dbcp-for-connection-pooling
+
+	<bean id="SMSAlert.sessionFactory" lazy-init="false" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="SMSAlert.dataSource" />
+		<property name="mappingResources">
+			<list>
+				<value>com/bnpp/sms/business/dao/entity/TblEvents.hbm.xml</value>
+				<value>com/bnpp/sms/business/dao/entity/TblLog.hbm.xml</value>								
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+				<prop key="hibernate.show_sql">false</prop> 	
+			</props>
+		</property>
+	</bean>	
 
 
-Error creating bean with name 'SMSAlert.sessionFactory' defined in class path resource [META-INF/spring-test/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is java.lang.NoClassDefFoundError: Could not initialize class org.hibernate.boot.jaxb.internal.stax.LocalSchema
+	<bean id="SMSAlert.hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="SMSAlert.sessionFactory"/>
+	</bean>
+
+	<bean id="SMSAlert.jdfDaoTemplate" lazy-init="true" abstract="true">
+		<property name="hibernateTemplate">
+			<ref bean="SMSAlert.hibernateTemplate" />
+		</property>	
+		 
+		<property name="jdfErrorHandler">
+			<ref bean="SMSAlert.jdfErrorHandler"/>
+		</property>			
+    </bean>
+
+	<!-- Dao Components -->
+	<bean id="SMSAlert.loggingDao" lazy-init="false" 
+		class="com.bnpp.sms.business.dao.impl.LoggingDaoImpl" parent="SMSAlert.jdfDaoTemplate">
+		<!-- property name="jdfErrorHandler" ref="SMSAlert.jdfErrorHandler"/>
+		<property name="hibernateTemplate" ref="SMSAlert.hibernateTemplate" /> -->
+	</bean>	
+	
+	<bean id="SMSAlert.eventsDao" lazy-init="false" 
+		class="com.bnpp.sms.business.dao.impl.EventsDaoImpl" parent="SMSAlert.jdfDaoTemplate">
+		<!-- property name="jdfErrorHandler" ref="SMSAlert.jdfErrorHandler"/>
+		<property name="hibernateTemplate" ref="SMSAlert.hibernateTemplate" /> -->
+	</bean>	
+	
+	<bean id="SMSAlert.templateDao" lazy-init="false" 
+		class="com.bnpp.sms.business.dao.impl.TemplatingDaoImpl" parent="SMSAlert.jdfDaoTemplate">
+		<property name="hibernateTemplate" ref="SMSAlert.hibernateTemplate" />
+	</bean>	
+	
+</beans>
