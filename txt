@@ -1,5 +1,16 @@
-CriteriaBuilder builder = session.getCriteriaBuilder();
-CriteriaQuery<ClassName> query = builder.createQuery(ClassName.class);
-Root<ClassName> root = query.from(ClassName.class);
-query.select(root);
-List<ClassName> results = session.createQuery(query).getResultList();
+Sì, `CacheKey` è stato deprecato in Hibernate 5.5 e sostituito da una nuova classe chiamata `NaturalIdCacheKey`.
+
+Se stai usando Hibernate 5.5 o versioni successive, dovresti utilizzare la classe `NaturalIdCacheKey` al posto di `CacheKey`.
+
+Ecco un esempio di come creare una nuova istanza di `NaturalIdCacheKey`:
+
+
+NaturalIdCacheKey cacheKey = new NaturalIdCacheKey(id, session.buildNaturalIdSharedSessionContract(ClassName.class)
+.getNaturalIdMetadata().getNaturalIdAttributes());
+
+
+In questo esempio, `id` è l'identificatore dell'oggetto che si desidera inserire nella cache, mentre `ClassName` è la classe dell'oggetto. 
+
+Il metodo `getNaturalIdAttributes()` restituisce gli attributi naturali della classe, che sono utilizzati per creare la chiave della cache.
+
+Ricorda che l'uso della cache può migliorare significativamente le prestazioni del tuo progetto, ma è importante utilizzarla in modo corretto e adattarla alle esigenze specifiche del tuo progetto.
