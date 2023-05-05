@@ -31,3 +31,13 @@ CacheKey cacheKey = CacheEntryHelper.buildCacheKey(
         session.getEntityMode(), 
         session.getFactory().getMetamodel().entityPersister(EntityClassName.class.getName())
 );
+
+
+
+
+<bean id="MOCKED.dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="org.h2.Driver"/>
+		<property name="url" value="jdbc:h2:mem:test"/>
+		<property name="username" value="sa"/>
+		<property name="password" value=""/>
+	</bean>
