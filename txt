@@ -14,3 +14,8 @@ In questo esempio, `id` è l'identificatore dell'oggetto che si desidera inserir
 Il metodo `getNaturalIdAttributes()` restituisce gli attributi naturali della classe, che sono utilizzati per creare la chiave della cache.
 
 Ricorda che l'uso della cache può migliorare significativamente le prestazioni del tuo progetto, ma è importante utilizzarla in modo corretto e adattarla alle esigenze specifiche del tuo progetto.
+
+
+net.sf.ehcache.search.Result
+
+CacheKey cacheKey = result.getKey()
