@@ -1,46 +1,54 @@
-Sì, `CacheKey` è stato deprecato in Hibernate 5.5 e sostituito da una nuova classe chiamata `NaturalIdCacheKey`.
-
-Se stai usando Hibernate 5.5 o versioni successive, dovresti utilizzare la classe `NaturalIdCacheKey` al posto di `CacheKey`.
-
-Ecco un esempio di come creare una nuova istanza di `NaturalIdCacheKey`:
-
-
-NaturalIdCacheKey cacheKey = new NaturalIdCacheKey(id, session.buildNaturalIdSharedSessionContract(ClassName.class)
-.getNaturalIdMetadata().getNaturalIdAttributes());
-
-
-In questo esempio, `id` è l'identificatore dell'oggetto che si desidera inserire nella cache, mentre `ClassName` è la classe dell'oggetto. 
-
-Il metodo `getNaturalIdAttributes()` restituisce gli attributi naturali della classe, che sono utilizzati per creare la chiave della cache.
-
-Ricorda che l'uso della cache può migliorare significativamente le prestazioni del tuo progetto, ma è importante utilizzarla in modo corretto e adattarla alle esigenze specifiche del tuo progetto.
-
-
-net.sf.ehcache.search.Result
-
-CacheKey cacheKey = result.getKey()
-
-
-import org.hibernate.cache.spi.CacheKey;
-import org.hibernate.cache.spi.entry.CacheEntryHelper;
-
-CacheKey cacheKey = CacheEntryHelper.buildCacheKey(
-        naturalIdValues, 
-        session.getFactory(),
-        session.getTenantIdentifier(), 
-        session.getEntityMode(), 
-        session.getFactory().getMetamodel().entityPersister(EntityClassName.class.getName())
-);
-
-
-
-
-<bean id="MOCKED.dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+<bean id="SWSCORE.sessionFactory" lazy-init="false" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="SWSCORE.dataSource" />
+		<property name="mappingResources">
+			<list>
+				<value>com/bnpp/coordinator/core/dao/entity/ConfigurationItem.hbm.xml</value>
+				<value>com/bnpp/coordinator/core/dao/entity/leadComment.hbm.xml</value>
+				<value>com/bnpp/coordinator/core/dao/entity/leadDetail.hbm.xml</value>
+				<value>com/bnpp/coordinator/core/dao/entity/leadHeader.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop> 	
+			</props>
+		</property>
+	</bean>	 
+	
+		<bean id="SWSCORE.dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
 		<property name="driverClassName" value="org.h2.Driver"/>
 		<property name="url" value="jdbc:h2:mem:test"/>
 		<property name="username" value="sa"/>
 		<property name="password" value=""/>
 	</bean>
+	
+	
+	
+	<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"> 
 
+<hibernate-mapping>
+	<class name="com.bnpp.coordinator.dao.beo.LeadComment" table="TDL_LEAD_COMMENT">
 
-SQL Error: 42102, SQLState: 42S02
+		<id name="leadId" type="string" length="17" column="LEAD_ID"/>	
+		
+		<property name="numComment" column="NUM_COMMENT" type="integer" not-null="true"/>
+		<property name="comment" column="COMMENT_DESC" type="string" not-null="false" length="2560"/>
+		
+  		
+	</class>
+		
+	<resultset name="leadCommentSet">
+    	<return alias="leadComment" class="com.bnpp.coordinator.dao.beo.LeadComment"/>    
+	</resultset>
+	
+ 	<sql-query name="msg.sp.readLeadCommentById" resultset-ref="leadCommentSet">    	
+	<![CDATA[
+		select LEAD_ID, NUM_COMMENT, COMMENT_DESC from TDL_LEAD_COMMENT where LEAD_ID = ?
+ 	]]>
+ 	</sql-query>
+
+	
+</hibernate-mapping>
