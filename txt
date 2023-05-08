@@ -1,11 +1,8 @@
-<bean id="SWSCORE.sessionFactory" lazy-init="false" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-		<property name="dataSource" ref="SWSCORE.dataSource" />
+<bean id="SW.sessionFactory" lazy-init="false" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="SW.dataSource" />
 		<property name="mappingResources">
 			<list>
-				<value>com/bnpp/coordinator/core/dao/entity/ConfigurationItem.hbm.xml</value>
-				<value>com/bnpp/coordinator/core/dao/entity/leadComment.hbm.xml</value>
-				<value>com/bnpp/coordinator/core/dao/entity/leadDetail.hbm.xml</value>
-				<value>com/bnpp/coordinator/core/dao/entity/leadHeader.hbm.xml</value>
+				<value>com/core/dao/entity/leadComment.hbm.xml</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -16,7 +13,7 @@
 		</property>
 	</bean>	 
 	
-		<bean id="SWSCORE.dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+		<bean id="SW.dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
 		<property name="driverClassName" value="org.h2.Driver"/>
 		<property name="url" value="jdbc:h2:mem:test"/>
 		<property name="username" value="sa"/>
@@ -41,7 +38,7 @@
 	</class>
 		
 	<resultset name="leadCommentSet">
-    	<return alias="leadComment" class="com.bnpp.coordinator.dao.beo.LeadComment"/>    
+    	<return alias="leadComment" class="com.coordinator.dao.beo.LeadComment"/>    
 	</resultset>
 	
  	<sql-query name="msg.sp.readLeadCommentById" resultset-ref="leadCommentSet">    	
