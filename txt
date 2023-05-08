@@ -1,51 +1,7 @@
-<bean id="SW.sessionFactory" lazy-init="false" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-		<property name="dataSource" ref="SW.dataSource" />
-		<property name="mappingResources">
-			<list>
-				<value>com/core/dao/entity/leadComment.hbm.xml</value>
-			</list>
-		</property>
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
-				<prop key="hibernate.show_sql">true</prop> 	
-			</props>
-		</property>
-	</bean>	 
-	
-		<bean id="SW.dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
-		<property name="driverClassName" value="org.h2.Driver"/>
-		<property name="url" value="jdbc:h2:mem:test"/>
-		<property name="username" value="sa"/>
-		<property name="password" value=""/>
-	</bean>
-	
-	
-	
-	<!DOCTYPE hibernate-mapping PUBLIC
+<!DOCTYPE hibernate-mapping PUBLIC
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"> 
-
-<hibernate-mapping>
-	<class name="com.bnpp.coordinator.dao.beo.LeadComment" table="TDL_LEAD_COMMENT">
-
-		<id name="leadId" type="string" length="17" column="LEAD_ID"/>	
-		
-		<property name="numComment" column="NUM_COMMENT" type="integer" not-null="true"/>
-		<property name="comment" column="COMMENT_DESC" type="string" not-null="false" length="2560"/>
-		
-  		
-	</class>
-		
-	<resultset name="leadCommentSet">
-    	<return alias="leadComment" class="com.coordinator.dao.beo.LeadComment"/>    
-	</resultset>
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
 	
- 	<sql-query name="msg.sp.readLeadCommentById" resultset-ref="leadCommentSet">    	
-	<![CDATA[
-		select LEAD_ID, NUM_COMMENT, COMMENT_DESC from TDL_LEAD_COMMENT where LEAD_ID = ?
- 	]]>
- 	</sql-query>
-
 	
-</hibernate-mapping>
+	Error while downloading 'http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd' to 'C:
+ \Users\xxx\.lemminx\cache\http\www.hibernate.org\dtd\hibernate-mapping-3.0.dtd'.
