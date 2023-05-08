@@ -41,3 +41,6 @@ CacheKey cacheKey = CacheEntryHelper.buildCacheKey(
 		<property name="username" value="sa"/>
 		<property name="password" value=""/>
 	</bean>
+
+
+SQL Error: 42102, SQLState: 42S02
