@@ -1,1 +1,10 @@
 
+
+private Ehcache cache;
+
+Query q = cache.createQuery();
+net.sf.ehcache.search.Results results = null;
+
+results = q.execute();
+
+Long longID = (Long)((CacheKey)result.getKey()).getKey()
