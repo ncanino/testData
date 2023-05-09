@@ -1,7 +1,109 @@
-<!DOCTYPE hibernate-mapping PUBLIC
-	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:ctx="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-4.3.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+	http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd">
 	
 	
-	Error while downloading 'http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd' to 'C:
- \Users\xxx\.lemminx\cache\http\www.hibernate.org\dtd\hibernate-mapping-3.0.dtd'.
+	<bean id="SWSCORE.sessionFactory" lazy-init="false" class="com.mock.MockSessionFactory">
+	</bean>
+		
+ 	<bean id="SWSCORE.jdfDaoTemplate" lazy-init="true" abstract="true">
+		<property name="hibernateTemplate" ref="SWSCORE.hibernateTemplate"/>
+		<property name="jdfErrorHandler" ref="SWSCORE.jdfErrorHandler"/>
+	</bean>
+	
+	<bean id="SWSCORE.jdfDaoLeadCommentTemplate" lazy-init="true" abstract="true">
+		<property name="hibernateTemplate" ref="SWSCORE.hibernateLeadCommentTemplate"/>
+		<property name="jdfErrorHandler" ref="SWSCORE.jdfErrorHandler"/>
+	</bean>
+	
+	<bean id="SWSCORE.jdfDaoLeadDetailTemplate" lazy-init="true" abstract="true">
+		<property name="hibernateTemplate" ref="SWSCORE.hibernateLeadDetailTemplate"/>
+		<property name="jdfErrorHandler" ref="SWSCORE.jdfErrorHandler"/>
+	</bean> 
+
+ 	<bean id="SWSCORE.hibernateTemplate" class="com.coordinator.mock.MockHibernateTemplate">
+		<property name="sessionFactory" ref="SWSCORE.sessionFactory"/>
+	</bean> 
+	
+	<bean id="SWSCORE.hibernateLeadCommentTemplate" class="com.mock.MockLeadCommentHibernateTemplate">
+		<property name="sessionFactory" ref="SWSCORE.sessionFactory"/>
+	</bean> 
+	
+	<bean id="SWSCORE.hibernateLeadDetailTemplate" class="com.coordinator.MockHibernateTemplate">
+		<property name="sessionFactory" ref="SWSCORE.sessionFactory"/>
+	</bean>
+	
+	
+	<!-- Dao Components -->
+	
+	<bean id="SWSCORE.tdlService" class="com.dao.impl.TdlLeadDAO" >
+	 	<property name="mapper" ref="SWSCORE.BUSINESS.LocalObjectMapper"/>     
+		<property name="tdlLeadHeader" ref="SWSCORE.cleLeadHeaderDao"/> 
+		<property name="tdlLeadDetail" ref="SWSCORE.cleLeadDetailDao"/> 
+		<property name="tdlLeadComment" ref="SWSCORE.cleLeadCommentDao"/> 	
+	</bean>	
+	
+	<bean id="SWSCORE.tdlServiceMIB" class="com.business.TdlServiceMIB" >
+		<property name="tdldao" ref="SWSCORE.tdlService"/> 
+		<property name="objIdGenHandler" ref="SWSCORE.ObjIdGenHandler"/> 
+	</bean>
+	
+	<bean id="SWSCORE.ObjIdGenHandler" class="com.business.impl.ObjIdGenHandlerImpl"/>
+	
+	<bean id="SWSCORE.cleLeadCommentDao" lazy-init="true" 
+		  class="com.dao.impl.TdlLeadComment"
+		  parent="SWSCORE.jdfDaoLeadCommentTemplate"/>
+	
+	<bean id="SWSCORE.cleLeadDetailDao" lazy-init="true" 
+		  class="com.dao.impl.TdlLeadDetailTable"
+		  parent="SWSCORE.jdfDaoLeadDetailTemplate"/>
+	
+	<bean id="SWSCORE.cleLeadHeaderDao" lazy-init="true" 
+		  class="com.dao.impl.TdlLeadHeader"
+		  parent="SWSCORE.jdfDaoTemplate"/>
+	
+	<!-- <aop:config proxy-target-class="true">
+	<aop:pointcut id="defaultPointcut"
+		expression="execution(* com.dao.impl.TdlLeadDetailTable.*(..)) 
+		|| execution(* com.dao.impl.TdlLeadComment.*(..)) 
+		|| execution(* com.business.TdlServiceMIB.*(..)) 
+		|| execution(* com.dao.impl.TdlLeadDAO.*(..)) 
+		|| execution(* com.business.impl.ObjIdGenHandlerImpl.*(..)) 
+		|| execution(* com.dao.impl.TdlLeadHeader.*(..))" />
+		
+
+	<aop:advisor advice-ref="txAdvice"
+		pointcut-ref="defaultPointcut" />
+
+</aop:config>
+
+	<tx:advice id="txAdvice"
+		transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="SWSCORE.sessionFactory" />
+	</bean>
+    
+    <tx:annotation-driven 
+		transaction-manager="transactionManager" mode="proxy" /> -->
+		 
+</beans>
