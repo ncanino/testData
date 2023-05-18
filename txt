@@ -1,6 +1,41 @@
-Cannot complete the install because one or more required items could not be found.
-  Software being installed: OSGi Application Development Tools 2022.0.200.v20221119_0548 (com.ibm.osgi.wdt.feature.feature.group 2022.0.200.v20221119_0548)
-  Missing requirement: OSGi Maven Core Extensions 1.0.210.v20221119_0548 (com.ibm.etools.aries.maven.core 1.0.210.v20221119_0548) requires 'osgi.bundle; org.eclipse.m2e.model.edit [1.4.0,2.0.0)' but it could not be found
-  Cannot satisfy dependency:
-    From: OSGi Maven UI Extensions 1.0.0.v20221119_0548 (com.ibm.etools.aries.maven.ui 1.0.0.v20221119_0548)
-    To: osgi.bundle; com.ibm.etools.aries.maven.core [1.0.0,2.0.0)
+  com.bnpp.jdf.core.exception.JdfBaseException: Error during Context instantiation: org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: 
+  Line 13 in XML document from class path resource [WEB-INF/config-contextlocator.xml] is invalid; nested exception 
+  is org.xml.sax.SAXParseException: cvc-complex-type.2.4.c: Il carattere jolly corrispondente è assoluto, ma non è stata trovata alcuna dichiarazione per l'elemento 'security:http'.
+	at com.bnpp.jdf.core.sal.servlet.JdfContextLoaderListener.contextInitialized(JdfContextLoaderListener.java:76)
+  
+  
+  <?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+                       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.0.xsd">
+
+	<beans:import resource="/jdf-connector-services-beans.xml" />
+	
+	<beans:bean id="com.bnpparibas.ate.core.context.ContextLocator"
+		class="com.bnpp.jdf.core.context.impl.JdfContextLocator" lazy-init="true"
+		scope="singleton" init-method="init" />
+	
+	<security:http auto-config="true" access-denied-page="/denied.jsp">
+		<security:intercept-url pattern="/pages/jdfTester.html" filters="none" />
+		<security:intercept-url pattern="/pages/jdfTesterAdvanced.html"	filters="none" />
+		<security:intercept-url pattern="/XmlHttpInbound" filters="none" />
+		<security:intercept-url pattern="/JavaHttpInbound" filters="none" />
+		<security:intercept-url pattern="/CicsHttpInbound" filters="none" />
+		<security:intercept-url pattern="/SoapHttpInbound" filters="none" />
+		<security:intercept-url pattern="/DSALWS/*" filters="none" />
+		<security:intercept-url pattern="/" access="ROLE_ADMIN" />
+	</security:http>
+
+
+	<security:authentication-provider>
+		<security:password-encoder hash="md5" />
+		<security:user-service>
+			<security:user name="rod" password="88f1e807ac7f7557da4e35c30f8f1ca6"
+				authorities="ROLE_ADMIN" />
+			<security:user name="dianne" password="65d15fe9156f9c4bbffd98085992a44e"
+				authorities="ROLE_USER" />
+		</security:user-service>
+	</security:authentication-provider>
+
+</beans:beans>
