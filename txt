@@ -1,41 +1,17 @@
-  com.bnpp.jdf.core.exception.JdfBaseException: Error during Context instantiation: org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: 
-  Line 13 in XML document from class path resource [WEB-INF/config-contextlocator.xml] is invalid; nested exception 
-  is org.xml.sax.SAXParseException: cvc-complex-type.2.4.c: Il carattere jolly corrispondente è assoluto, ma non è stata trovata alcuna dichiarazione per l'elemento 'security:http'.
-	at com.bnpp.jdf.core.sal.servlet.JdfContextLoaderListener.contextInitialized(JdfContextLoaderListener.java:76)
-  
-  
-  <?xml version="1.0" encoding="UTF-8"?>
-<beans:beans xmlns:security="http://www.springframework.org/schema/security"
-	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
-                       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.0.xsd">
-
-	<beans:import resource="/jdf-connector-services-beans.xml" />
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 	
-	<beans:bean id="com.bnpparibas.ate.core.context.ContextLocator"
-		class="com.bnpp.jdf.core.context.impl.JdfContextLocator" lazy-init="true"
-		scope="singleton" init-method="init" />
+	<listener> 
+		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	</listener>
 	
-	<security:http auto-config="true" access-denied-page="/denied.jsp">
-		<security:intercept-url pattern="/pages/jdfTester.html" filters="none" />
-		<security:intercept-url pattern="/pages/jdfTesterAdvanced.html"	filters="none" />
-		<security:intercept-url pattern="/XmlHttpInbound" filters="none" />
-		<security:intercept-url pattern="/JavaHttpInbound" filters="none" />
-		<security:intercept-url pattern="/CicsHttpInbound" filters="none" />
-		<security:intercept-url pattern="/SoapHttpInbound" filters="none" />
-		<security:intercept-url pattern="/DSALWS/*" filters="none" />
-		<security:intercept-url pattern="/" access="ROLE_ADMIN" />
-	</security:http>
-
-
-	<security:authentication-provider>
-		<security:password-encoder hash="md5" />
-		<security:user-service>
-			<security:user name="rod" password="88f1e807ac7f7557da4e35c30f8f1ca6"
-				authorities="ROLE_ADMIN" />
-			<security:user name="dianne" password="65d15fe9156f9c4bbffd98085992a44e"
-				authorities="ROLE_USER" />
-		</security:user-service>
-	</security:authentication-provider>
-
-</beans:beans>
+	
+	[19/05/23 14.43.35:257 CEST] 0000005d webapp        E com.ibm.ws.webcontainer.webapp.WebApp notifyServletContextCreated SRVE0283E: Exception caught while initializing context: {0}
+                                 com.bnpp.jdf.core.exception.JdfBaseException: Error during Context instantiation: org.springframework.beans.factory.BeanDefinitionStoreException: Unexpected exception parsing XML document from class path resource [WEB-INF/config-contextlocator.xml]; nested exception is java.lang.NoSuchMethodError: org/springframework/beans/factory/support/BeanDefinitionBuilder.setSource(Ljava/lang/Object;)Lorg/springframework/beans/factory/support/BeanDefinitionBuilder; (loaded from file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/spring-beans-4.3.3.RELEASE.jar by 
+com.ibm.ws.classloader.CompoundClassLoader@9a6b2ad7[war:jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war]
+   Local ClassPath: C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\installedApps\PARX00001483Node03Cell\jdf-mx-smsalert-ear.ear\jdf-mx-smsalert-war.war\WEB-INF\lib\activation-1.1.jar;C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\installedApps\PARX00001483Node03Cell\jdf-mx-smsalert-ear.ear\jdf-mx-smsalert-war.war\WEB-INF\lib\antlr-2.7.7.jar;C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\installedApps\PARX00001483Node03Cell\jdf-mx-smsalert-ear.ear\jdf-mx-smsalert-war.war\WEB-INF\lib\antlr-runtime-3.1.1.jar;C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\installedApps\PARX00001483Node03Cell\jdf-mx-smsalert-ear.ear\jdf-mx-smsalert-war.war\WEB-INF\lib\aspectjweaver-1.8.9.jar;
+   C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\installedApps\PARX00001483Node03Cell\jdf-mx-smsalert-ear.ear\jdf-mx-smsalert-war.war\WEB-INF\lib\ate4jrf-core-business-1.2.2.jar;
+   
+   
+   
