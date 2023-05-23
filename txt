@@ -1,17 +1,120 @@
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
+E com.ibm.ws.webcontainer.webapp.WebApp notifyServletContextCreated SRVE0283E: Exception caught while initializing context: {0}
+                                 com.bnpp.jdf.core.exception.JdfBaseException: Error during Context instantiation: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.bnpparibas.ate.core.context.ContextLocator' defined in class path resource [WEB-INF/config-contextlocator.xml]: Invocation of init method failed; nested exception is org.springframework.context.ApplicationContextException: Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line 27 in XML document from file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\srvmgr-common-context.xml] is invalid; nested exception is org.xml.sax.SAXParseException: L'attributo "singleton" deve essere dichiarato per il tipo elemento "bean".
+				 
+				 
+				 
+				 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="SM.jdfDozerMapper" class="com.TEST.jdf.core.util.impl.JdfDozerMapper"/>
 	
-	<listener> 
-		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-	</listener>
+	<bean id="SM.jdfErrorHandler" class="com.TEST.jdf.core.error.impl.JdfErrorHandler">
+		<property name="context" ref="com.TESTaribas.ate.core.context.Context"/>
+		<property name="errorTranslator" ref="SM.com.TESTaribas.ate.core.error.IErrorTranslator"/>
+		<property name="errorHelper" ref="SM.com.TESTaribas.ate.core.error.IErrorHelper"/>
+	</bean>
+
+	<bean id="SM.jdfFacadeTemplate" lazy-init="true">
+		<property name="jdfErrorHandler">
+			<ref bean="SM.jdfErrorHandler"/>
+		</property>	
+    </bean>
 	
+	<!-- =================================================================== -->
+	<!-- ==========================  ERROR MANAGEMENT  ===================== -->
+	<!-- =================================================================== -->	
+
+	<!-- Errors holder object -->
+	<bean id="SM.com.TESTaribas.ate.core.error.IErrorsHolder"
+		class="com.TESTaribas.ate.core.error.impl.ErrorsHolderDefault"
+		lazy-init="true" singleton="true" />
+
+	<!-- Errors helper object -->
+	<bean id="SM.com.TESTaribas.ate.core.error.IErrorHelper"
+		class="com.TESTaribas.ate.core.error.impl.ErrorHelperDefault"
+		lazy-init="true" singleton="true">
+		<property name="errorsHolder">
+			<ref bean="SM.com.TESTaribas.ate.core.error.IErrorsHolder" />
+		</property>
+	</bean>
+
+	<!-- ErrCode2MsgCode translation bundle -->
+	<bean id="SM.com.TESTaribas.ate.core.message.source.errors"
+		class="org.springframework.context.support.ResourceBundleMessageSource"
+		lazy-init="true">
+		<property name="basenames">
+			<list>
+				<value>
+					com.TEST.jdf.gettingstarted.customersregistry.errors.errcode2msgcode
+				</value>
+			</list>
+		</property>
+	</bean>
 	
-	[19/05/23 14.43.35:257 CEST] 0000005d webapp        E com.ibm.ws.webcontainer.webapp.WebApp notifyServletContextCreated SRVE0283E: Exception caught while initializing context: {0}
-                                 com.bnpp.jdf.core.exception.JdfBaseException: Error during Context instantiation: org.springframework.beans.factory.BeanDefinitionStoreException: Unexpected exception parsing XML document from class path resource [WEB-INF/config-contextlocator.xml]; nested exception is java.lang.NoSuchMethodError: org/springframework/beans/factory/support/BeanDefinitionBuilder.setSource(Ljava/lang/Object;)Lorg/springframework/beans/factory/support/BeanDefinitionBuilder; (loaded from file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/spring-beans-4.3.3.RELEASE.jar by 
-com.ibm.ws.classloader.CompoundClassLoader@9a6b2ad7[war:jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war]
-   Local ClassPath: C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\installedApps\PARX00001483Node03Cell\jdf-mx-smsalert-ear.ear\jdf-mx-smsalert-war.war\WEB-INF\lib\activation-1.1.jar;C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\installedApps\PARX00001483Node03Cell\jdf-mx-smsalert-ear.ear\jdf-mx-smsalert-war.war\WEB-INF\lib\antlr-2.7.7.jar;C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\installedApps\PARX00001483Node03Cell\jdf-mx-smsalert-ear.ear\jdf-mx-smsalert-war.war\WEB-INF\lib\antlr-runtime-3.1.1.jar;C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\installedApps\PARX00001483Node03Cell\jdf-mx-smsalert-ear.ear\jdf-mx-smsalert-war.war\WEB-INF\lib\aspectjweaver-1.8.9.jar;
-   C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\installedApps\PARX00001483Node03Cell\jdf-mx-smsalert-ear.ear\jdf-mx-smsalert-war.war\WEB-INF\lib\ate4jrf-core-business-1.2.2.jar;
+	<!-- MsgCode2MsgLbl translation bundle -->
+	<bean id="SM.com.TESTaribas.ate.core.message.source"
+		class="org.springframework.context.support.ResourceBundleMessageSource"
+		lazy-init="true">
+		<property name="basenames">
+			<list>
+				<value>
+					com.TEST.jdf.gettingstarted.customersregistry.errors.msgcode2msglbl
+				</value>
+				<value>
+					com.TEST.jdf.gettingstarted.customersregistry.errors.msgcode2msglbl_db
+				</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- MsgCode2MsgLbl translator object -->
+	<bean id="SM.com.TESTaribas.ate.core.message.IMessageSource"
+		class="com.TESTaribas.ate.core.message.impl.MessageSourceDefault"
+		lazy-init="true">
+		<property name="messageSource">
+			<ref bean="SM.com.TESTaribas.ate.core.message.source" />
+		</property>
+	</bean>
+
+	<!-- ErrCode2MsgCode translator object -->
+	<bean id="SM.com.TESTaribas.ate.core.error.IErrorMessageCodeSource"
+		class="com.TESTaribas.ate.core.error.impl.ErrorMessageCodeSourceDefault"
+		lazy-init="true" singleton="true">
+		<property name="messageSource">
+			<ref bean="SM.com.TESTaribas.ate.core.message.source.errors" />
+		</property>
+	</bean>
+
+	<!-- ErrCode2MsgLbl translator object -->
+	<bean id="SM.com.TESTaribas.ate.core.error.IErrorMessageSource"
+		class="com.TESTaribas.ate.core.error.impl.ErrorMessageSourceDefault"
+		lazy-init="true" singleton="true">
+		<property name="errorMessageCodeSource">
+			<ref bean="SM.com.TESTaribas.ate.core.error.IErrorMessageCodeSource" />
+		</property>
+		<property name="messageSource">
+			<ref bean="SM.com.TESTaribas.ate.core.message.IMessageSource" />
+		</property>
+	</bean>
+
+	<!-- Error translator main object -->
+	<bean id="SM.com.TESTaribas.ate.core.error.IErrorTranslator"
+		class="com.TESTaribas.ate.core.error.impl.ErrorTranslatorDefault"
+		lazy-init="true" singleton="true">
+		<property name="errorHelper">
+			<ref bean="SM.com.TESTaribas.ate.core.error.IErrorHelper" />
+		</property>
+		<property name="errorMessageSource">
+			<ref bean="SM.com.TESTaribas.ate.core.error.IErrorMessageSource" />
+		</property>
+		<property name="context">
+			<ref bean="com.TESTaribas.ate.core.context.Context" />
+		</property>
+		<property name="businessContextPropertyForLocale" value="localeCode" />
+	</bean>
+</beans>
    
    
    
