@@ -1,120 +1,35 @@
-E com.ibm.ws.webcontainer.webapp.WebApp notifyServletContextCreated SRVE0283E: Exception caught while initializing context: {0}
-                                 com.bnpp.jdf.core.exception.JdfBaseException: Error during Context instantiation: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.bnpparibas.ate.core.context.ContextLocator' defined in class path resource [WEB-INF/config-contextlocator.xml]: Invocation of init method failed; nested exception is org.springframework.context.ApplicationContextException: Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line 27 in XML document from file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\srvmgr-common-context.xml] is invalid; nested exception is org.xml.sax.SAXParseException: L'attributo "singleton" deve essere dichiarato per il tipo elemento "bean".
-				 
-				 
-				 
-				 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+Caused by: org.hibernate.service.spi.ServiceException: Unable to create requested service [org.hibernate.cache.spi.RegionFactory]
+Caused by: org.hibernate.boot.registry.selector.spi.StrategySelectionException: Unable to resolve name [net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory] as strategy [org.hibernate.cache.spi.RegionFactory]
 
-<beans>
+Ho migrato da Hibernate 3 ad hibernate 5.1.1 ed il bean che configura il session factory è il seguente:
 
-	<bean id="SM.jdfDozerMapper" class="com.TEST.jdf.core.util.impl.JdfDozerMapper"/>
-	
-	<bean id="SM.jdfErrorHandler" class="com.TEST.jdf.core.error.impl.JdfErrorHandler">
-		<property name="context" ref="com.TESTaribas.ate.core.context.Context"/>
-		<property name="errorTranslator" ref="SM.com.TESTaribas.ate.core.error.IErrorTranslator"/>
-		<property name="errorHelper" ref="SM.com.TESTaribas.ate.core.error.IErrorHelper"/>
-	</bean>
-
-	<bean id="SM.jdfFacadeTemplate" lazy-init="true">
-		<property name="jdfErrorHandler">
-			<ref bean="SM.jdfErrorHandler"/>
-		</property>	
-    </bean>
-	
-	<!-- =================================================================== -->
-	<!-- ==========================  ERROR MANAGEMENT  ===================== -->
-	<!-- =================================================================== -->	
-
-	<!-- Errors holder object -->
-	<bean id="SM.com.TESTaribas.ate.core.error.IErrorsHolder"
-		class="com.TESTaribas.ate.core.error.impl.ErrorsHolderDefault"
-		lazy-init="true" singleton="true" />
-
-	<!-- Errors helper object -->
-	<bean id="SM.com.TESTaribas.ate.core.error.IErrorHelper"
-		class="com.TESTaribas.ate.core.error.impl.ErrorHelperDefault"
-		lazy-init="true" singleton="true">
-		<property name="errorsHolder">
-			<ref bean="SM.com.TESTaribas.ate.core.error.IErrorsHolder" />
-		</property>
-	</bean>
-
-	<!-- ErrCode2MsgCode translation bundle -->
-	<bean id="SM.com.TESTaribas.ate.core.message.source.errors"
-		class="org.springframework.context.support.ResourceBundleMessageSource"
-		lazy-init="true">
-		<property name="basenames">
+<bean id="ES.SessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+    
+		<property name="dataSource" ref="ES.dataSourceSMSA2" />
+		<property name="mappingResources">
 			<list>
-				<value>
-					com.TEST.jdf.gettingstarted.customersregistry.errors.errcode2msgcode
-				</value>
+				<value>test.hbm.xml</value>
 			</list>
 		</property>
-	</bean>
-	
-	<!-- MsgCode2MsgLbl translation bundle -->
-	<bean id="SM.com.TESTaribas.ate.core.message.source"
-		class="org.springframework.context.support.ResourceBundleMessageSource"
-		lazy-init="true">
-		<property name="basenames">
-			<list>
-				<value>
-					com.TEST.jdf.gettingstarted.customersregistry.errors.msgcode2msglbl
-				</value>
-				<value>
-					com.TEST.jdf.gettingstarted.customersregistry.errors.msgcode2msglbl_db
-				</value>
-			</list>
-		</property>
-	</bean>
+		
+		<property name="hibernateProperties">
+			<props>
+				<prop key="proxy-target-class">true</prop>
+				<!-- <prop key="current_session_context_class">thread</prop> -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.format_sql">false</prop>
 
-	<!-- MsgCode2MsgLbl translator object -->
-	<bean id="SM.com.TESTaribas.ate.core.message.IMessageSource"
-		class="com.TESTaribas.ate.core.message.impl.MessageSourceDefault"
-		lazy-init="true">
-		<property name="messageSource">
-			<ref bean="SM.com.TESTaribas.ate.core.message.source" />
-		</property>
-	</bean>
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<!-- prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</prop -->
+				<prop key="hibernate.cache.provider_configuration_file_resource_path">classpath:ehcache.xml</prop> 
+				<prop key="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory</prop>
+				<prop key="hibernate.cache.use_structured_entries">true</prop> 
+				<prop key="hibernate.generate_statistics">false</prop>
 
-	<!-- ErrCode2MsgCode translator object -->
-	<bean id="SM.com.TESTaribas.ate.core.error.IErrorMessageCodeSource"
-		class="com.TESTaribas.ate.core.error.impl.ErrorMessageCodeSourceDefault"
-		lazy-init="true" singleton="true">
-		<property name="messageSource">
-			<ref bean="SM.com.TESTaribas.ate.core.message.source.errors" />
+			</props>
 		</property>
-	</bean>
+	</bean>		
 
-	<!-- ErrCode2MsgLbl translator object -->
-	<bean id="SM.com.TESTaribas.ate.core.error.IErrorMessageSource"
-		class="com.TESTaribas.ate.core.error.impl.ErrorMessageSourceDefault"
-		lazy-init="true" singleton="true">
-		<property name="errorMessageCodeSource">
-			<ref bean="SM.com.TESTaribas.ate.core.error.IErrorMessageCodeSource" />
-		</property>
-		<property name="messageSource">
-			<ref bean="SM.com.TESTaribas.ate.core.message.IMessageSource" />
-		</property>
-	</bean>
-
-	<!-- Error translator main object -->
-	<bean id="SM.com.TESTaribas.ate.core.error.IErrorTranslator"
-		class="com.TESTaribas.ate.core.error.impl.ErrorTranslatorDefault"
-		lazy-init="true" singleton="true">
-		<property name="errorHelper">
-			<ref bean="SM.com.TESTaribas.ate.core.error.IErrorHelper" />
-		</property>
-		<property name="errorMessageSource">
-			<ref bean="SM.com.TESTaribas.ate.core.error.IErrorMessageSource" />
-		</property>
-		<property name="context">
-			<ref bean="com.TESTaribas.ate.core.context.Context" />
-		</property>
-		<property name="businessContextPropertyForLocale" value="localeCode" />
-	</bean>
-</beans>
-   
-   
-   
+Come correggo? Serve qualche dipendenza?
