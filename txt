@@ -203,5 +203,48 @@ Caused by: net.sf.ehcache.config.InvalidConfigurationException: There are 10 err
 	* Cache 'com.bnpp.external.services.dao.beo.SmsAlertConfiguration' error: If your CacheManager has no maxBytesLocalHeap set, you need to either set maxEntriesLocalHeap or maxBytesLocalHeap at the Cache level
 	
 IDICAMI PRECISAMENTE COME RISOLVERE CERCANDO DI NON COMMETTERE ERRORI
+
+
+L'errore che stai riscontrando indica che ci sono problemi nella configurazione del file ehcache.xml, in particolare per le cache specificate. L'errore specifico è relativo alla mancata impostazione di "maxEntriesLocalHeap" o "maxBytesLocalHeap" per ciascuna cache nel caso in cui il "CacheManager" non abbia un valore "maxBytesLocalHeap" impostato.
+
+Per risolvere l'errore, devi aggiungere la configurazione appropriata per le cache nel file ehcache.xml. Ogni cache dovrebbe avere una delle seguenti proprietà impostate:
+
+- `maxEntriesLocalHeap`: specifica il numero massimo di elementi che possono essere memorizzati in cache in memoria.
+- `maxBytesLocalHeap`: specifica la dimensione massima della cache in memoria in byte.
+
+Ecco un esempio di come puoi configurare correttamente una cache nel file ehcache.xml:
+
+```xml
+<cache name="com.bnpp.external.services.dao.beo.Subproduct"
+       maxEntriesLocalHeap="1000"
+       eternal="false"
+       timeToIdleSeconds="49766400"
+       timeToLiveSeconds="49766400"
+       diskPersistent="false">
+    <searchable keys="true" values="true">
+        <searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+        <searchAttribute name="idsubproduct" expression="key.getIdSubproduct()"/>
+        <searchAttribute name="product" class="com.bnpp.external.services.business.util.Value" />
+    </searchable>
+</cache>
+```
+
+Assicurati di aggiornare la configurazione di tutte le cache elencate nell'errore con le appropriate proprietà `maxEntriesLocalHeap` o `maxBytesLocalHeap` specificate.
+
+Ripeti lo stesso processo per tutte le altre cache elencate nell'errore. Assicurati di specificare un valore appropriato per `maxEntriesLocalHeap` o `maxBytesLocalHeap` in base alle tue esigenze.
+
+Una volta corretta la configurazione del file ehcache.xml, dovresti essere in grado di avviare correttamente l'applicazione senza gli errori segnalati.
+
+La differenza di comportamento tra Hibernate 3 e Hibernate 5 potrebbe essere dovuta a modifiche nella gestione della cache e nelle impostazioni di default.
+
+In Hibernate 3, potrebbe essere stato utilizzato un'altra configurazione predefinita per la gestione della cache, che potrebbe non richiedere esplicitamente la configurazione di `maxEntriesLocalHeap` o `maxBytesLocalHeap` per le cache.
+
+Tuttavia, in Hibernate 5 potrebbe essere stata introdotta una nuova configurazione predefinita o un cambiamento nel modo in cui la cache viene gestita, richiedendo l'aggiunta esplicita di tali proprietà per le cache definite nel file ehcache.xml.
+
+Le modifiche nelle versioni successive di un framework o una libreria possono comportare cambiamenti nelle configurazioni o nei requisiti di configurazione. Pertanto, è importante adattare la configurazione alle nuove versioni per garantire il corretto funzionamento dell'applicazione.
+
+Nel tuo caso, poiché stai migrando da Hibernate 3 a Hibernate 5, potrebbero esserci differenze nella configurazione della cache che richiedono modifiche nel file ehcache.xml.
+
+Raccomando di fare riferimento alla documentazione di Hibernate 5 e alle guide di migrazione ufficiali per verificare le modifiche necessarie nella configurazione della cache e adattare di conseguenza il tuo file ehcache.xml. In questo modo, sarai sicuro di utilizzare una configurazione corretta e aggiornata per Hibernate 5.
 	
 
