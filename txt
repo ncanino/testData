@@ -1,3 +1,6 @@
+W com.ibm.ws.ecs.internal.scan.context.impl.ScannerContextImpl scanJAR unable to open input stream for resource module-info.class in archive WEB-INF/lib/jaxb-runtime-2.3.1.jar
+                                 java.lang.IllegalArgumentException
+
 Caused by: org.hibernate.service.spi.ServiceException: Unable to create requested service [org.hibernate.cache.spi.RegionFactory]
 Caused by: org.hibernate.boot.registry.selector.spi.StrategySelectionException: Unable to resolve name [net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory] as strategy [org.hibernate.cache.spi.RegionFactory]
 
