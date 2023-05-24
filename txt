@@ -1,5 +1,20 @@
+Dipendenze pom:
+		<!-- EHCache Core API -->
+		<dependency>
+		    <groupId>net.sf.ehcache</groupId>
+		    <artifactId>ehcache-core</artifactId>
+		    <version>2.4.5</version>
+		</dependency>
+		<!-- Hibernate EHCache API -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-ehcache</artifactId>
+			<version>5.1.1.Final</version>
+		</dependency>
+
+Configurazione sessionFactory e hibernate properties:
+
 <bean id="ES.SessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-    
 		<property name="dataSource" ref="ES.dataSourceSMSA2" />
 		<property name="mappingResources">
 			<list>
@@ -17,9 +32,9 @@
 
 				<prop key="hibernate.cache.use_query_cache">true</prop>
 				<prop key="hibernate.cache.use_second_level_cache">true</prop>
-				<!-- prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</prop -->
+				
 				<prop key="hibernate.cache.provider_configuration_file_resource_path">classpath:ehcache.xml</prop> 
-				<prop key="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory</prop>
 				<prop key="hibernate.cache.use_structured_entries">true</prop> 
 				<prop key="hibernate.generate_statistics">false</prop>
 
@@ -27,7 +42,153 @@
 		</property>
 	</bean>		
 
+La configurazione ehcache.xml è la seguente:
 
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	
+			 xsi:noNamespaceSchemaLocation="ehcache.xsd">
+
+    <defaultCache
+        maxElementsInMemory="2000"
+        eternal="false"
+        timeToIdleSeconds="49766400"
+        timeToLiveSeconds="49766400"
+        overflowToDisk="false"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120" 
+        />
+
+    <cache name="org.hibernate.cache.StandardQueryCache"
+		eternal="false"
+		maxElementsInMemory="2000"
+		timeToLiveSeconds="49766400" >
+    </cache>
+    
+	<cache name="org.hibernate.cache.UpdateTimestampsCache"
+		eternal="true"  >
+	</cache>
+
+	<cache
+	    name="com.bnpp.external.services.dao.beo.ProductType"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="idproducttype" expression="key.getIdproducttype()"/>
+	    </searchable>
+    </cache>
+    	
+	<cache
+	    name="com.bnpp.external.services.dao.beo.Product"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="idproduct" expression="key.getIdproduct()"/>
+	    	<searchAttribute name="idproducttype" class="com.bnpp.external.services.business.util.Value" />
+	    </searchable>
+    </cache>
+    
+	<cache
+	    name="com.bnpp.external.services.dao.beo.Subproduct"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="idsubproduct" expression="key.getIdSubproduct()"/>
+	    	<searchAttribute name="product" class="com.bnpp.external.services.business.util.Value" />
+	    </searchable>
+    </cache>
+    
+	<cache
+	    name="com.bnpp.external.services.dao.beo.Event"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="subproduct" class="com.bnpp.external.services.business.util.Value"/>
+	    	<searchAttribute name="idevent" expression="key.getIdevent()"/>
+	    </searchable>
+    </cache>
+    
+	<cache
+	    name="com.bnpp.external.services.dao.beo.Handler"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="description" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="idhandler" expression="key.getIdhandler()"/>
+	    </searchable>
+    </cache>
+    
+	<cache
+	    name="com.bnpp.external.services.dao.beo.Corporate"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="idCorporate" expression="key.getIdCorporate()"/>
+	    </searchable>
+    </cache>
+    
+	<cache
+	    name="com.bnpp.external.services.dao.beo.XMLTemplate"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+ 	    	<searchAttribute name="idSubCom" expression="key.getKey().getIdSubCom()" />
+	    	<searchAttribute name="product" expression="key.getKey().getProduct()" />
+	    	<searchAttribute name="subproduct" expression="key.getKey().getSubproduct()" />
+	    	<searchAttribute name="event" expression="key.getKey().getEvent()" />
+	    	<searchAttribute name="handler" expression="key.getKey().getHandler()" />
+	    	<searchAttribute name="corporate" expression="key.getKey().getCorporate()"  />
+	    </searchable>
+    </cache>
+    
+  	<cache
+	    name="com.bnpp.external.services.dao.beo.Applicationstoprodsubprod"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+ 	    	<searchAttribute name="id" expression="key.getId()" />
+	    	<searchAttribute name="product" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="subproduct" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="codeapp" class="com.bnpp.external.services.business.util.Value" />
+	    </searchable>
+    </cache>
+    
+    <cache
+	name="com.bnpp.external.services.dao.beo.SmsAlertConfiguration"
+	eternal="false"
+	timeToIdleSeconds="49766400"
+	timeToLiveSeconds="49766400"
+	diskPersistent="false">
+	   <searchable keys="true" values="true">
+ 	  	<searchAttribute name="configId" expression="key.getConfigId()" />
+	   	<searchAttribute name="configKey" class="com.bnpp.external.services.business.util.Value" />
+	   	<searchAttribute name="configValue" class="com.bnpp.external.services.business.util.Value" />
+	   	<searchAttribute name="configUpdTimestamp" class="com.bnpp.external.services.business.util.Value" />
+	  </searchable>
+    </cache>
+</ehcache>
+
+OTTENGO I SEGUENTE ERRORE IN FASE DI START DELL'APPLICAZIONE:
 
 Caused by: net.sf.ehcache.config.InvalidConfigurationException: There are 10 errors in your configuration: 
 	* Cache 'com.bnpp.external.services.dao.beo.Subproduct' error: If your CacheManager has no maxBytesLocalHeap set, you need to either set maxEntriesLocalHeap or maxBytesLocalHeap at the Cache level
@@ -40,3 +201,7 @@ Caused by: net.sf.ehcache.config.InvalidConfigurationException: There are 10 err
 	* Cache 'com.bnpp.external.services.dao.beo.Applicationstoprodsubprod' error: If your CacheManager has no maxBytesLocalHeap set, you need to either set maxEntriesLocalHeap or maxBytesLocalHeap at the Cache level
 	* Cache 'com.bnpp.external.services.dao.beo.Product' error: If your CacheManager has no maxBytesLocalHeap set, you need to either set maxEntriesLocalHeap or maxBytesLocalHeap at the Cache level
 	* Cache 'com.bnpp.external.services.dao.beo.SmsAlertConfiguration' error: If your CacheManager has no maxBytesLocalHeap set, you need to either set maxEntriesLocalHeap or maxBytesLocalHeap at the Cache level
+	
+IDICAMI PRECISAMENTE COME RISOLVERE CERCANDO DI NON COMMETTERE ERRORI
+	
+
