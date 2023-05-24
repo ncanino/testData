@@ -32,7 +32,15 @@ Ho migrato da Hibernate 3 ad hibernate 5.1.1 ed il bean che configura il session
 		</property>
 	</bean>		
 
-Come correggo? Serve qualche dipendenza?
+la dipendenza attuale che prima della migrazione funzionava era 
+
+<dependency>
+<groupId>net.sf.ehcache</groupId>
+<artifactId>ehcache-core</artifactId>
+<version>2.4.5</version>
+</dependency>
+
+Come risolvo l'errore senza sconvolgere il codice?
 
 
 L'errore che stai riscontrando indica che Hibernate non è in grado di risolvere la classe `net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory` come factory per le regioni di cache. Questo è dovuto al fatto che la classe `SingletonEhCacheRegionFactory` non fa parte delle classi fornite da Hibernate 5.1.1.
