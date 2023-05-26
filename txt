@@ -1,6 +1,656 @@
-Cannot resolve reference to bean 'ES.SessionFactory' while setting bean property 'sessionFactory'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.SessionFactory' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is org.hibernate.MappingException: Could not get constructor for org.hibernate.persister.entity.SingleTableEntityPersister
+prima della migrazione avevo spring Hibernate 3.3 e nel modulo dove è presente lo strato di cache la solo dipendenza:
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache-core</artifactId>
+			<version>2.5.4</version>
+		</dependency>
 
+Ho migrato tutto ad Hibernate 5.1.1.Final e cambiato le dipendenze cosi:
+
+<!-- Hibernate EHCache API -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-ehcache</artifactId>
+			<version>5.1.1.Final</version>
+			<exclusions>
+                <exclusion>
+                    <groupId>net.sf.ehcache</groupId>
+                    <artifactId>ehcache</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+		
+		<!-- EHCache Core API  -->
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache-core</artifactId>
+			<version>2.6.11</version>
+		</dependency>
+		
+Il bean dove viene configurato il session factory e le proprietà di hibernate è il seguente:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="
+				http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd				
+				http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd">	
+								
+    <bean id="ES.SessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+    
+		<property name="dataSource" ref="ES.dataSourceSMSA2" />
+		<property name="mappingResources">
+			<list>
+				<value>com/bnpp/external/services/dao/entity/Adhesion.hbm.xml</value>
+				<value>com/bnpp/external/services/dao/entity/Category.hbm.xml</value>							
+				<value>com/bnpp/external/services/dao/entity/Domains.hbm.xml</value>						
+				<value>com/bnpp/external/services/dao/entity/Deliveryhandler.hbm.xml</value>
+				<value>com/bnpp/external/services/dao/entity/E2e.hbm.xml</value>								
+				<value>com/bnpp/external/services/dao/entity/Event.hbm.xml</value>							
+				<value>com/bnpp/external/services/dao/entity/Handler.hbm.xml</value>							
+				<value>com/bnpp/external/services/dao/entity/Product.hbm.xml</value>							
+				<value>com/bnpp/external/services/dao/entity/ProductType.hbm.xml</value>							
+				<value>com/bnpp/external/services/dao/entity/Profile.hbm.xml</value>							
+				<value>com/bnpp/external/services/dao/entity/Profiledetail.hbm.xml</value>						
+				<value>com/bnpp/external/services/dao/entity/Subproduct.hbm.xml</value>
+				<value>com/bnpp/external/services/dao/entity/Applicationstoprodsubprod.hbm.xml</value>
+				<!-- Estensione offerta -->
+				<value>com/bnpp/external/services/dao/entity/Applicationsdownloaded.hbm.xml</value>
+				<value>com/bnpp/external/services/dao/entity/Applicationsregistry.hbm.xml</value>
+				<value>com/bnpp/external/services/dao/entity/Applicationstodeliveryhandler.hbm.xml</value>
+				<value>com/bnpp/external/services/dao/entity/Applicationstoprofiledetails.hbm.xml</value>
+				<!-- Template a caldo -->		
+				<value>com/bnpp/external/services/dao/entity/Corporate.hbm.xml</value>
+				<value>com/bnpp/external/services/dao/entity/XMLTemplate.hbm.xml</value>
+				<!-- Template per Email -->					
+				<value>com/bnpp/external/services/dao/entity/Emailtemplate.hbm.xml</value>
+				<value>com/bnpp/external/services/dao/entity/Adhesionsmsfree.hbm.xml</value>	
+				<value>com/bnpp/external/services/dao/entity/Smsalertconfiguration.hbm.xml</value>
+			</list>
+		</property>
+		
+		<property name="hibernateProperties">
+			<props>
+				<prop key="proxy-target-class">true</prop>
+				<!-- <prop key="current_session_context_class">thread</prop> -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.format_sql">false</prop>
+
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<!-- prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</prop -->
+				<prop key="hibernate.cache.provider_configuration_file_resource_path">classpath:ehcache.xml</prop> 
+				
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory</prop>
+				
+				<prop key="hibernate.cache.use_structured_entries">true</prop> 
+				<prop key="hibernate.generate_statistics">false</prop>
+
+			</props>
+		</property>
+	</bean>		
+	
+	
+	<!-- <bean id="ES.hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+	</bean> -->
+			
+	<bean id="ES.AdhesionDaoFactory" class="com.bnpp.external.services.dao.impl.AdhesionDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+	
+	<bean id="ES.CategoryDaoFactory" class="com.bnpp.external.services.dao.impl.CategoryDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>	
+			
+	<bean id="ES.DeliveryhandlerDaoFactory" class="com.bnpp.external.services.dao.impl.DeliveryhandlerDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+			
+	<bean id="ES.DomainsDaoFactory" class="com.bnpp.external.services.dao.impl.DomainsDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>	
+	
+	<bean id="ES.E2eDaoFactory" class="com.bnpp.external.services.dao.impl.E2eDao" lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+			
+	<bean id="ES.EventDaoFactory" class="com.bnpp.external.services.dao.impl.EventDao" lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+			
+	<bean id="ES.HandlerDaoFactory" class="com.bnpp.external.services.dao.impl.HandlerDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+			
+	<bean id="ES.ProductDaoFactory" class="com.bnpp.external.services.dao.impl.ProductDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+			
+	<bean id="ES.ProductTypeDaoFactory" class="com.bnpp.external.services.dao.impl.ProductTypeDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+			
+	<bean id="ES.ProfileDaoFactory" class="com.bnpp.external.services.dao.impl.ProfileDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+			
+	<bean id="ES.ProfiledetailDaoFactory" class="com.bnpp.external.services.dao.impl.ProfiledetailDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+			
+	<bean id="ES.SubproductDaoFactory" class="com.bnpp.external.services.dao.impl.SubproductDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+			
+	<bean id="ES.XMLTemplateDaoFactory" class="com.bnpp.external.services.dao.impl.XMLTemplateDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler" />
+	</bean>
+	
+	<bean id="ES.EmailtemplateDaoFactory" class="com.bnpp.external.services.dao.impl.EmailtemplateDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler" />
+	</bean>
+	
+	<bean id="ES.CorporateDaoFactory" class="com.bnpp.external.services.dao.impl.CorporateDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler" />
+	</bean>
+	
+	<bean id="ES.ApplicationsdownloadedDao" class="com.bnpp.external.services.dao.impl.ApplicationsdownloadedDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>
+	
+	<bean id="ES.ApplicationstoprodsubprodDao" class="com.bnpp.external.services.dao.impl.ApplicationstoprodsubprodDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>
+	
+	<bean id="ES.AdhesionSMSFreeDaoFactory" class="com.bnpp.external.services.dao.impl.AdhesionSMSFreeDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+	
+	<bean id="ES.SMSAlertConfigurationDaoFactory" class="com.bnpp.external.services.dao.impl.SmsAlertConfigurationDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>		
+	
+	<bean id="ES.ApplicationsregistryDao" 	class="com.bnpp.external.services.dao.impl.ApplicationsregistryDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>	
+	
+	<bean id="ES.ApplicationstodeliveryhandlerDao" class="com.bnpp.external.services.dao.impl.ApplicationstodeliveryhandlerDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>	
+	
+	<bean id="ES.ApplicationstoprofiledetailsDao" class="com.bnpp.external.services.dao.impl.ApplicationstoprofiledetailsDao"  lazy-init="false">
+		<property name="sessionFactory" ref="ES.SessionFactory"/>
+		<property name="jdfErrorHandler" ref="ES.jdfErrorHandler"/>
+	</bean>				
+		
+</beans>
+
+Questo il file ecache.xml:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	
+			 xsi:noNamespaceSchemaLocation="ehcache.xsd">
+
+    <defaultCache
+        maxElementsInMemory="2000"
+        maxEntriesLocalHeap="1000"
+        eternal="false"
+        timeToIdleSeconds="49766400"
+        timeToLiveSeconds="49766400"
+        overflowToDisk="false"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120" 
+        />
+
+    <cache name="org.hibernate.cache.StandardQueryCache"
+		eternal="false"
+		maxElementsInMemory="2000"
+		maxEntriesLocalHeap="1000"
+		timeToLiveSeconds="49766400" >
+    </cache>
+    
+	<cache name="org.hibernate.cache.UpdateTimestampsCache"
+	 	maxEntriesLocalHeap="1000"
+		eternal="true"  >
+	</cache>
+
+	<cache
+	    name="com.bnpp.external.services.dao.beo.ProductType"
+	    maxEntriesLocalHeap="1000"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="idproducttype" expression="key.getIdproducttype()"/>
+	    </searchable>
+    </cache>
+    	
+	<cache
+	    name="com.bnpp.external.services.dao.beo.Product"
+	    maxEntriesLocalHeap="1000"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="idproduct" expression="key.getIdproduct()"/>
+	    	<searchAttribute name="idproducttype" class="com.bnpp.external.services.business.util.Value" />
+	    </searchable>
+    </cache>
+    
+	<cache
+	    name="com.bnpp.external.services.dao.beo.Subproduct"
+	    maxEntriesLocalHeap="1000"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="idsubproduct" expression="key.getIdSubproduct()"/>
+	    	<searchAttribute name="product" class="com.bnpp.external.services.business.util.Value" />
+	    </searchable>
+    </cache>
+    
+	<cache
+	    name="com.bnpp.external.services.dao.beo.Event"
+	    maxEntriesLocalHeap="1000"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="subproduct" class="com.bnpp.external.services.business.util.Value"/>
+	    	<searchAttribute name="idevent" expression="key.getIdevent()"/>
+	    </searchable>
+    </cache>
+    
+	<cache
+	    name="com.bnpp.external.services.dao.beo.Handler"
+	    maxEntriesLocalHeap="1000"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="description" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="idhandler" expression="key.getIdhandler()"/>
+	    </searchable>
+    </cache>
+    
+	<cache
+	    name="com.bnpp.external.services.dao.beo.Corporate"
+	    maxEntriesLocalHeap="1000"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+	    	<searchAttribute name="code" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="idCorporate" expression="key.getIdCorporate()"/>
+	    </searchable>
+    </cache>
+    
+	<cache
+	    name="com.bnpp.external.services.dao.beo.XMLTemplate"
+	    maxEntriesLocalHeap="1000"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+ 	    	<searchAttribute name="idSubCom" expression="key.getKey().getIdSubCom()" />
+	    	<searchAttribute name="product" expression="key.getKey().getProduct()" />
+	    	<searchAttribute name="subproduct" expression="key.getKey().getSubproduct()" />
+	    	<searchAttribute name="event" expression="key.getKey().getEvent()" />
+	    	<searchAttribute name="handler" expression="key.getKey().getHandler()" />
+	    	<searchAttribute name="corporate" expression="key.getKey().getCorporate()"  />
+	    </searchable>
+    </cache>
+    
+  	<cache
+	    name="com.bnpp.external.services.dao.beo.Applicationstoprodsubprod"
+	    maxEntriesLocalHeap="1000"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+ 	    	<searchAttribute name="id" expression="key.getId()" />
+	    	<searchAttribute name="product" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="subproduct" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="codeapp" class="com.bnpp.external.services.business.util.Value" />
+	    </searchable>
+    </cache>
+    
+    <cache
+	    name="com.bnpp.external.services.dao.beo.SmsAlertConfiguration"
+	    maxEntriesLocalHeap="1000"
+	    eternal="false"
+	    timeToIdleSeconds="49766400"
+	    timeToLiveSeconds="49766400"
+		diskPersistent="false">
+	    <searchable keys="true" values="true">
+ 	    	<searchAttribute name="configId" expression="key.getConfigId()" />
+	    	<searchAttribute name="configKey" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="configValue" class="com.bnpp.external.services.business.util.Value" />
+	    	<searchAttribute name="configUpdTimestamp" class="com.bnpp.external.services.business.util.Value" />
+	    </searchable>
+    </cache>
+</ehcache>
+
+Il progetto fa deploy su Whebsphere 8.5 ma durante lo start dell'applicazione ottento questo:
+
+
+[26/05/23 9.30.46:239 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/com.ibm.ws.console.appmanagement/Upload.jsp]: Initialization successful.
+[26/05/23 9.31.22:908 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/com.ibm.ws.console.appmanagement/DefaultBindings.jsp]: Initialization successful.
+[26/05/23 9.31.29:863 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/secure/layouts/stepsLayout.jsp]: Initialization successful.
+[26/05/23 9.31.29:993 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/com.ibm.ws.console.appmanagement/AppDeploymentOptions.jsp]: Initialization successful.
+[26/05/23 9.31.30:008 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/secure/tiles/filePermissionsTile.jsp]: Initialization successful.
+[26/05/23 9.31.33:045 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/com.ibm.ws.console.appmanagement/MapModulesToServers.jsp]: Initialization successful.
+[26/05/23 9.31.34:956 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/com.ibm.ws.console.appmanagement/MapResRefToEJB.jsp]: Initialization successful.
+[26/05/23 9.31.34:976 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/com.ibm.ws.console.appmanagement/menuButtonLayout.jsp]: Initialization successful.
+[26/05/23 9.31.37:215 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/secure/layouts/genericCollectionLayout.jsp]: Initialization successful.
+[26/05/23 9.31.43:949 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/com.ibm.ws.console.appmanagement/MapWebModToVH.jsp]: Initialization successful.
+[26/05/23 9.31.48:266 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [/com.ibm.ws.console.appmanagement/AppInstallSummary.jsp]: Initialization successful.
+[26/05/23 9.31.57:306 CEST] 00000089 ServletWrappe I com.ibm.ws.webcontainer.servlet.ServletWrapper init SRVE0242I: [isclite] [/ibm/console] [AppInstallStatusServlet]: Initialization successful.
+[26/05/23 9.31.57:558 CEST] 0000008d InstallSchedu I   ADMA5016I: Installation of jdf-mx-smsalert-ear started.
+[26/05/23 9.32.20:711 CEST] 0000008d WebContainer  I com.ibm.ws.webcontainer.internal.WebContainer addExtensionFactory SRVE0239I: Extension Factory [class com.ibm.ws.soa.sca.web.extension.SCAWebExtensionFactory] was registered successfully.
+[26/05/23 9.32.20:712 CEST] 0000008d WebContainer  I com.ibm.ws.webcontainer.internal.WebContainer addExtensionFactory SRVE0240I: Extension Factory [class com.ibm.ws.soa.sca.web.extension.SCAWebExtensionFactory] has been associated with patterns [""].
+[26/05/23 9.32.20:819 CEST] 0000008d WebSphereSCAS I   Added Servlet mapping: /dojo
+[26/05/23 9.32.20:819 CEST] 0000008d WebSphereSCAS I   Added Servlet mapping: /dojo
+[26/05/23 9.32.20:820 CEST] 0000008d WebSphereSCAS I   Added Servlet mapping: /tuscany
+[26/05/23 9.32.20:820 CEST] 0000008d WebSphereSCAS I   Added Servlet mapping: /tuscany
+[26/05/23 9.32.21:457 CEST] 0000008d InstallSchedu I   ADMA5013I: Application jdf-mx-smsalert-ear installed successfully.
+[26/05/23 9.32.48:519 CEST] 0000005c AppBinaryProc I   ADMA7021I: Distribution of application jdf-mx-smsalert-ear completed successfully.
+[26/05/23 9.32.48:807 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war/WEB-INF/lib/spring-web-4.3.3.RELEASE.jar/META-INF/web-fragment.xml is created.
+[26/05/23 9.32.48:810 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/cus/jdf-mx-smsalert-ear/cver/BASE/cu.xml is created.
+[26/05/23 9.32.48:810 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war/WEB-INF/ibm-web-bnd.xml is created.
+[26/05/23 9.32.48:811 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/META-INF/ibm-application-bnd.xmi is created.
+[26/05/23 9.32.48:811 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/blas/jdf-mx-smsalert-ear/bver/BASE/bla.xml is created.
+[26/05/23 9.32.48:812 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war/WEB-INF/config-contextlocator.xml is created.
+[26/05/23 9.32.48:812 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/cus/jdf-mx-smsalert-ear/cver/BASE/cu-ref.xml is created.
+[26/05/23 9.32.48:813 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-ear.ear is created.
+[26/05/23 9.32.48:813 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/META-INF/application.xml is created.
+[26/05/23 9.32.48:814 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war/WEB-INF/smsalert-config-contextlocator.xml is created.
+[26/05/23 9.32.48:814 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war/WEB-INF/jdf-connector-services-beans.xml is created.
+[26/05/23 9.32.48:814 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/cus/jdf-mx-smsalert-ear/cver/BASE/controlOpDefs.xml is created.
+[26/05/23 9.32.48:815 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deltas/jdf-mx-smsalert-ear/delta-1685086339973 is created.
+[26/05/23 9.32.48:815 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/deployment.xml is created.
+[26/05/23 9.32.48:816 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war/WEB-INF/ibm-datasource-ext.xml is created.
+[26/05/23 9.32.48:816 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/META-INF/ibm-application-runtime.props is created.
+[26/05/23 9.32.48:816 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war/WEB-INF/web.xml is created.
+[26/05/23 9.32.48:817 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war/WEB-INF/jdf-context-security.xml is created.
+[26/05/23 9.32.48:817 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war/WEB-INF/ibm-web-ext.xml is created.
+[26/05/23 9.32.48:818 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/META-INF/MANIFEST.MF is created.
+[26/05/23 9.32.48:818 CEST] 0000005c FileRepositor A   ADMR0009I: Document cells/PARX00001483Node03Cell/applications/jdf-mx-smsalert-ear.ear/deployments/jdf-mx-smsalert-ear/jdf-mx-smsalert-war.war/META-INF/MANIFEST.MF is created.
+[26/05/23 9.32.48:819 CEST] 0000005c FileRepositor A   ADMR0010I: Document cells/PARX00001483Node03Cell/nodes/PARX00001483Node02/serverindex.xml is modified.
+[26/05/23 9.33.23:592 CEST] 0000008a AdminHelper   A   ADMN1009I: An attempt is made to start the jdf-mx-smsalert-ear application.
+[26/05/23 9.33.23:649 CEST] 0000008a CompositionUn A   WSVR0190I: Starting composition unit WebSphere:cuname=jdf-mx-smsalert-ear in BLA WebSphere:blaname=jdf-mx-smsalert-ear.
+[26/05/23 9.33.24:061 CEST] 0000008a ApplicationMg A   WSVR0200I: Starting application: jdf-mx-smsalert-ear
+[26/05/23 9.33.24:061 CEST] 0000008a ApplicationMg A   WSVR0204I: Application: jdf-mx-smsalert-ear  Application build level: Unknown
+[26/05/23 9.33.28:675 CEST] 0000008a webapp        I com.ibm.ws.webcontainer.webapp.WebGroupImpl WebGroup SRVE0169I: Loading Web Module: SMS-jdf-webapp.
+[26/05/23 9.33.28:728 CEST] 0000008a WASSessionCor I SessionContextRegistry getSessionContext SESN0176I: Will create a new session context for application key default_host/SMSAlert2
+[26/05/23 9.35.31:018 CEST] 0000008a webapp        I com.ibm.ws.webcontainer.webapp.WebApp log SRVE0292I: Servlet Message - [jdf-mx-smsalert-ear#jdf-mx-smsalert-war.war]:.No Spring WebApplicationInitializer types detected on classpath
+[26/05/23 9.35.59:497 CEST] 0000008a InternalGener I   DSRA8225I: DataSource JNDI name : jdbc/BMMOracleSMSA2
+[26/05/23 9.35.59:508 CEST] 0000008a InternalGener I   DSRA8203I: Database product name : Oracle
+[26/05/23 9.35.59:508 CEST] 0000008a InternalGener I   DSRA8204I: Database product version : Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+[26/05/23 9.35.59:509 CEST] 0000008a InternalGener I   DSRA8205I: JDBC driver name  : Oracle JDBC driver
+[26/05/23 9.35.59:509 CEST] 0000008a InternalGener I   DSRA8206I: JDBC driver version  : 11.2.0.4.0
+[26/05/23 9.35.59:510 CEST] 0000008a InternalGener I   DSRA8218I: JDBC driver specification level  : 11.2
+[26/05/23 9.35.59:510 CEST] 0000008a InternalOracl I   DSRA8212I: DataStoreHelper name is: com.ibm.websphere.rsadapter.Oracle11gDataStoreHelper.
+[26/05/23 9.35.59:511 CEST] 0000008a WSRdbDataSour I   DSRA8208I: JDBC driver type  : 4
+[26/05/23 9.36.02:675 CEST] 0000008a FfdcProvider  W com.ibm.ws.ffdc.impl.FfdcProvider logIncident FFDC1003I: FFDC Incident emitted on C:\Program Files (x86)\IBM\WAS85511FP\profiles\MXSMSALERTJRF4\logs\ffdc\server1_2ef1b3ac_23.05.26_09.36.02.5213390271200223760644.txt com.ibm.ws.webcontainer.webapp.WebApp.notifyServletContextCreated 1341
+[26/05/23 9.36.02:678 CEST] 0000008a webapp        E com.ibm.ws.webcontainer.webapp.WebApp notifyServletContextCreated SRVE0283E: Exception caught while initializing context: {0}
+                                 com.bnpp.jdf.core.exception.JdfBaseException: Error during Context instantiation: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.bnpparibas.ate.core.context.ContextLocator' defined in class path resource [WEB-INF/config-contextlocator.xml]: Invocation of init method failed; nested exception is org.springframework.context.ApplicationContextException: Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.ConverterToApplicationsDownloaded' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/accessoryComponents-context.xml]: Cannot resolve reference to bean 'ES.ApplicationsregistryDao' while setting bean property 'applicationsregistryDao'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.ApplicationsregistryDao' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Cannot resolve reference to bean 'ES.SessionFactory' while setting bean property 'sessionFactory'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.SessionFactory' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is org.hibernate.MappingException: Could not get constructor for org.hibernate.persister.entity.SingleTableEntityPersister
+	at com.bnpp.jdf.core.sal.servlet.JdfContextLoaderListener.contextInitialized(JdfContextLoaderListener.java:76)
+	at com.ibm.ws.webcontainer.webapp.WebApp.notifyServletContextCreated(WebApp.java:1732)
+	at com.ibm.ws.webcontainer.webapp.WebAppImpl.initialize(WebAppImpl.java:415)
+	at com.ibm.ws.webcontainer.webapp.WebGroupImpl.addWebApplication(WebGroupImpl.java:88)
+	at com.ibm.ws.webcontainer.VirtualHostImpl.addWebApplication(VirtualHostImpl.java:171)
+	at com.ibm.ws.webcontainer.WSWebContainer.addWebApp(WSWebContainer.java:901)
+	at com.ibm.ws.webcontainer.WSWebContainer.addWebApplication(WSWebContainer.java:789)
+	at com.ibm.ws.webcontainer.component.WebContainerImpl.install(WebContainerImpl.java:427)
+	at com.ibm.ws.webcontainer.component.WebContainerImpl.start(WebContainerImpl.java:719)
+	at com.ibm.ws.runtime.component.ApplicationMgrImpl.start(ApplicationMgrImpl.java:1201)
+	at com.ibm.ws.runtime.component.DeployedApplicationImpl.fireDeployedObjectStart(DeployedApplicationImpl.java:1390)
+	at com.ibm.ws.runtime.component.DeployedModuleImpl.start(DeployedModuleImpl.java:639)
+	at com.ibm.ws.runtime.component.DeployedApplicationImpl.start(DeployedApplicationImpl.java:979)
+	at com.ibm.ws.runtime.component.ApplicationMgrImpl.startApplication(ApplicationMgrImpl.java:785)
+	at com.ibm.ws.runtime.component.ApplicationMgrImpl.startApplicationDynamically(ApplicationMgrImpl.java:1403)
+	at com.ibm.ws.runtime.component.ApplicationMgrImpl.start(ApplicationMgrImpl.java:2214)
+	at com.ibm.ws.runtime.component.CompositionUnitMgrImpl.start(CompositionUnitMgrImpl.java:435)
+	at com.ibm.ws.runtime.component.CompositionUnitImpl.start(CompositionUnitImpl.java:123)
+	at com.ibm.ws.runtime.component.CompositionUnitMgrImpl.start(CompositionUnitMgrImpl.java:378)
+	at com.ibm.ws.runtime.component.CompositionUnitMgrImpl.access$500(CompositionUnitMgrImpl.java:126)
+	at com.ibm.ws.runtime.component.CompositionUnitMgrImpl$1.run(CompositionUnitMgrImpl.java:653)
+	at com.ibm.ws.security.auth.ContextManagerImpl.runAs(ContextManagerImpl.java:5397)
+	at com.ibm.ws.security.auth.ContextManagerImpl.runAsSystem(ContextManagerImpl.java:5613)
+	at com.ibm.ws.security.core.SecurityContext.runAsSystem(SecurityContext.java:255)
+	at com.ibm.ws.runtime.component.CompositionUnitMgrImpl.startCompositionUnit(CompositionUnitMgrImpl.java:667)
+	at com.ibm.ws.runtime.component.CompositionUnitMgrImpl.startCompositionUnit(CompositionUnitMgrImpl.java:611)
+	at com.ibm.ws.runtime.component.ApplicationMgrImpl.startApplication(ApplicationMgrImpl.java:1293)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:95)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:55)
+	at java.lang.reflect.Method.invoke(Method.java:508)
+	at sun.reflect.misc.Trampoline.invoke(MethodUtil.java:83)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:95)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:55)
+	at java.lang.reflect.Method.invoke(Method.java:508)
+	at sun.reflect.misc.MethodUtil.invoke(MethodUtil.java:287)
+	at javax.management.modelmbean.RequiredModelMBean$4.run(RequiredModelMBean.java:1263)
+	at java.security.AccessController.doPrivileged(AccessController.java:620)
+	at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:87)
+	at javax.management.modelmbean.RequiredModelMBean.invokeMethod(RequiredModelMBean.java:1257)
+	at javax.management.modelmbean.RequiredModelMBean.invoke(RequiredModelMBean.java:1096)
+	at com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.invoke(DefaultMBeanServerInterceptor.java:831)
+	at com.sun.jmx.mbeanserver.JmxMBeanServer.invoke(JmxMBeanServer.java:813)
+	at com.ibm.ws.management.AdminServiceImpl$1.run(AdminServiceImpl.java:1350)
+	at com.ibm.ws.security.util.AccessController.doPrivileged(AccessController.java:118)
+	at com.ibm.ws.management.AdminServiceImpl.invoke(AdminServiceImpl.java:1243)
+	at com.ibm.ws.management.commands.AdminServiceCommands$InvokeCmd.execute(AdminServiceCommands.java:251)
+	at com.ibm.ws.console.core.mbean.MBeanHelper.invoke(MBeanHelper.java:246)
+	at com.ibm.ws.console.appdeployment.ApplicationDeploymentCollectionAction.execute(ApplicationDeploymentCollectionAction.java:608)
+	at org.apache.struts.action.RequestProcessor.processActionPerform(Unknown Source)
+	at org.apache.struts.action.RequestProcessor.process(Unknown Source)
+	at org.apache.struts.action.ActionServlet.process(Unknown Source)
+	at org.apache.struts.action.ActionServlet.doPost(Unknown Source)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:595)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:668)
+	at com.ibm.ws.webcontainer.servlet.ServletWrapper.service(ServletWrapper.java:1233)
+	at com.ibm.ws.webcontainer.servlet.ServletWrapper.handleRequest(ServletWrapper.java:782)
+	at com.ibm.ws.webcontainer.servlet.ServletWrapper.handleRequest(ServletWrapper.java:481)
+	at com.ibm.ws.webcontainer.servlet.ServletWrapperImpl.handleRequest(ServletWrapperImpl.java:178)
+	at com.ibm.ws.webcontainer.filter.WebAppFilterChain.invokeTarget(WebAppFilterChain.java:136)
+	at com.ibm.ws.webcontainer.filter.WebAppFilterChain.doFilter(WebAppFilterChain.java:79)
+	at com.ibm.ws.webcontainer.filter.WebAppFilterManager.doFilter(WebAppFilterManager.java:967)
+	at com.ibm.ws.webcontainer.filter.WebAppFilterManager.invokeFilters(WebAppFilterManager.java:1107)
+	at com.ibm.ws.webcontainer.webapp.WebAppRequestDispatcher.dispatch(WebAppRequestDispatcher.java:1389)
+	at com.ibm.ws.webcontainer.webapp.WebAppRequestDispatcher.forward(WebAppRequestDispatcher.java:195)
+	at org.apache.struts.action.RequestProcessor.doForward(Unknown Source)
+	at org.apache.struts.tiles.TilesRequestProcessor.doForward(Unknown Source)
+	at org.apache.struts.action.RequestProcessor.processForwardConfig(Unknown Source)
+	at org.apache.struts.tiles.TilesRequestProcessor.processForwardConfig(Unknown Source)
+	at org.apache.struts.action.RequestProcessor.process(Unknown Source)
+	at org.apache.struts.action.ActionServlet.process(Unknown Source)
+	at org.apache.struts.action.ActionServlet.doPost(Unknown Source)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:595)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:668)
+	at com.ibm.ws.webcontainer.servlet.ServletWrapper.service(ServletWrapper.java:1233)
+	at com.ibm.ws.webcontainer.servlet.ServletWrapper.handleRequest(ServletWrapper.java:782)
+	at com.ibm.ws.webcontainer.servlet.ServletWrapper.handleRequest(ServletWrapper.java:481)
+	at com.ibm.ws.webcontainer.servlet.ServletWrapperImpl.handleRequest(ServletWrapperImpl.java:178)
+	at com.ibm.ws.webcontainer.filter.WebAppFilterChain.invokeTarget(WebAppFilterChain.java:136)
+	at com.ibm.ws.webcontainer.filter.WebAppFilterChain.doFilter(WebAppFilterChain.java:97)
+	at com.ibm.ws.console.core.servlet.WSCUrlFilter.setUpCommandAssistance(WSCUrlFilter.java:967)
+	at com.ibm.ws.console.core.servlet.WSCUrlFilter.continueStoringTaskState(WSCUrlFilter.java:514)
+	at com.ibm.ws.console.core.servlet.WSCUrlFilter.doFilter(WSCUrlFilter.java:335)
+	at com.ibm.ws.webcontainer.filter.FilterInstanceWrapper.doFilter(FilterInstanceWrapper.java:195)
+	at com.ibm.ws.webcontainer.filter.WebAppFilterChain.doFilter(WebAppFilterChain.java:91)
+	at com.ibm.ws.webcontainer.filter.WebAppFilterManager.doFilter(WebAppFilterManager.java:967)
+	at com.ibm.ws.webcontainer.filter.WebAppFilterManager.invokeFilters(WebAppFilterManager.java:1107)
+	at com.ibm.ws.webcontainer.servlet.CacheServletWrapper.handleRequest(CacheServletWrapper.java:87)
+	at com.ibm.ws.webcontainer.WebContainer.handleRequest(WebContainer.java:949)
+	at com.ibm.ws.webcontainer.WSWebContainer.handleRequest(WSWebContainer.java:1817)
+	at com.ibm.ws.webcontainer.channel.WCChannelLink.ready(WCChannelLink.java:200)
+	at com.ibm.ws.http.channel.inbound.impl.HttpInboundLink.handleDiscrimination(HttpInboundLink.java:463)
+	at com.ibm.ws.http.channel.inbound.impl.HttpInboundLink.handleNewRequest(HttpInboundLink.java:530)
+	at com.ibm.ws.http.channel.inbound.impl.HttpInboundLink.processRequest(HttpInboundLink.java:316)
+	at com.ibm.ws.http.channel.inbound.impl.HttpICLReadCallback.complete(HttpICLReadCallback.java:88)
+	at com.ibm.ws.tcp.channel.impl.AioReadCompletionListener.futureCompleted(AioReadCompletionListener.java:175)
+	at com.ibm.io.async.AbstractAsyncFuture.invokeCallback(AbstractAsyncFuture.java:217)
+	at com.ibm.io.async.AsyncChannelFuture.fireCompletionActions(AsyncChannelFuture.java:161)
+	at com.ibm.io.async.AsyncFuture.completed(AsyncFuture.java:138)
+	at com.ibm.io.async.ResultHandler.complete(ResultHandler.java:204)
+	at com.ibm.io.async.ResultHandler.runEventProcessingLoop(ResultHandler.java:775)
+	at com.ibm.io.async.ResultHandler$2.run(ResultHandler.java:905)
+	at com.ibm.ws.util.ThreadPool$Worker.run(ThreadPool.java:1892)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.bnpparibas.ate.core.context.ContextLocator' defined in class path resource [WEB-INF/config-contextlocator.xml]: Invocation of init method failed; nested exception is org.springframework.context.ApplicationContextException: Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.ConverterToApplicationsDownloaded' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/accessoryComponents-context.xml]: Cannot resolve reference to bean 'ES.ApplicationsregistryDao' while setting bean property 'applicationsregistryDao'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.ApplicationsregistryDao' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Cannot resolve reference to bean 'ES.SessionFactory' while setting bean property 'sessionFactory'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.SessionFactory' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is org.hibernate.MappingException: Could not get constructor for org.hibernate.persister.entity.SingleTableEntityPersister
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1583)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:545)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:482)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:306)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:230)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:302)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:197)
+	at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1076)
+	at com.bnpparibas.ate.core.context.spring.SpringContextAdapter.getBean(SpringContextAdapter.java:31)
+	at com.bnpparibas.ate.core.context.impl.ContextLocatorHelper.initGlobalContextLocator(ContextLocatorHelper.java:41)
+	at com.bnpp.jdf.core.sal.servlet.JdfContextLoaderListener.contextInitialized(JdfContextLoaderListener.java:71)
+	... 103 more
+Caused by: org.springframework.context.ApplicationContextException: Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.ConverterToApplicationsDownloaded' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/accessoryComponents-context.xml]: Cannot resolve reference to bean 'ES.ApplicationsregistryDao' while setting bean property 'applicationsregistryDao'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.ApplicationsregistryDao' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Cannot resolve reference to bean 'ES.SessionFactory' while setting bean property 'sessionFactory'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.SessionFactory' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is org.hibernate.MappingException: Could not get constructor for org.hibernate.persister.entity.SingleTableEntityPersister
+	at com.bnpp.jdf.core.context.impl.JdfContextLocator.init(JdfContextLocator.java:150)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:95)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:55)
+	at java.lang.reflect.Method.invoke(Method.java:508)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeCustomInitMethod(AbstractAutowireCapableBeanFactory.java:1711)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1650)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1579)
+	... 113 more
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.ConverterToApplicationsDownloaded' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/accessoryComponents-context.xml]: Cannot resolve reference to bean 'ES.ApplicationsregistryDao' while setting bean property 'applicationsregistryDao'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.ApplicationsregistryDao' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Cannot resolve reference to bean 'ES.SessionFactory' while setting bean property 'sessionFactory'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.SessionFactory' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is org.hibernate.MappingException: Could not get constructor for org.hibernate.persister.entity.SingleTableEntityPersister
+	at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:359)
+	at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveValueIfNecessary(BeanDefinitionValueResolver.java:108)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyPropertyValues(AbstractAutowireCapableBeanFactory.java:1486)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1231)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:543)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:482)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:306)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:230)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:302)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:197)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:751)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:861)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:541)
+	at com.bnpp.jdf.core.context.impl.JdfContextLocator.loadConfiguration(JdfContextLocator.java:360)
+	at com.bnpp.jdf.core.context.impl.JdfContextLocator.init(JdfContextLocator.java:143)
+	... 120 more
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.ApplicationsregistryDao' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Cannot resolve reference to bean 'ES.SessionFactory' while setting bean property 'sessionFactory'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.SessionFactory' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is org.hibernate.MappingException: Could not get constructor for org.hibernate.persister.entity.SingleTableEntityPersister
+	at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:359)
+	at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveValueIfNecessary(BeanDefinitionValueResolver.java:108)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyPropertyValues(AbstractAutowireCapableBeanFactory.java:1486)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1231)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:543)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:482)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:306)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:230)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:302)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:197)
+	at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:351)
+	... 134 more
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'ES.SessionFactory' defined in URL [wsjar:file:/C:/Program%20Files%20(x86)/IBM/WAS85511FP/profiles/MXSMSALERTJRF4/installedApps/PARX00001483Node03Cell/jdf-mx-smsalert-ear.ear/jdf-mx-smsalert-war.war/WEB-INF/lib/com.bnpp.external.services.business-1.11.892-SNAPSHOT.jar!/META-INF/spring/dataAccessComponents-context.xml]: Invocation of init method failed; nested exception is org.hibernate.MappingException: Could not get constructor for org.hibernate.persister.entity.SingleTableEntityPersister
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1583)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:545)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:482)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:306)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:230)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:302)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:197)
+	at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:351)
+	... 144 more
+Caused by: org.hibernate.MappingException: Could not get constructor for org.hibernate.persister.entity.SingleTableEntityPersister
+	at org.hibernate.persister.internal.PersisterFactoryImpl.createEntityPersister(PersisterFactoryImpl.java:123)
+	at org.hibernate.persister.internal.PersisterFactoryImpl.createEntityPersister(PersisterFactoryImpl.java:77)
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:344)
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:465)
+	at org.hibernate.cfg.Configuration.buildSessionFactory(Configuration.java:711)
+	at org.hibernate.cfg.Configuration.buildSessionFactory(Configuration.java:727)
+	at org.springframework.orm.hibernate5.LocalSessionFactoryBean.buildSessionFactory(LocalSessionFactoryBean.java:502)
+	at org.springframework.orm.hibernate5.LocalSessionFactoryBean.afterPropertiesSet(LocalSessionFactoryBean.java:486)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1642)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1579)
+	... 151 more
+Caused by: org.hibernate.HibernateException: Unable to instantiate default tuplizer [org.hibernate.tuple.entity.PojoEntityTuplizer]
+	at org.hibernate.tuple.entity.EntityTuplizerFactory.constructTuplizer(EntityTuplizerFactory.java:91)
+	at org.hibernate.tuple.entity.EntityTuplizerFactory.constructDefaultTuplizer(EntityTuplizerFactory.java:116)
+	at org.hibernate.tuple.entity.EntityMetamodel.<init>(EntityMetamodel.java:385)
+	at org.hibernate.persister.entity.AbstractEntityPersister.<init>(AbstractEntityPersister.java:509)
+	at org.hibernate.persister.entity.SingleTableEntityPersister.<init>(SingleTableEntityPersister.java:124)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:88)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:57)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:437)
+	at org.hibernate.persister.internal.PersisterFactoryImpl.createEntityPersister(PersisterFactoryImpl.java:96)
+	... 160 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:88)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:57)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:437)
+	at org.hibernate.tuple.entity.EntityTuplizerFactory.constructTuplizer(EntityTuplizerFactory.java:88)
+	... 169 more
+Caused by: java.lang.RuntimeException: duplicate method: getHandler in com.bnpp.external.services.dao.beo.Deliveryhandler_$$_javassist_21
+	at javassist.util.proxy.ProxyFactory.createClass3(ProxyFactory.java:509)
+	at javassist.util.proxy.ProxyFactory.createClass2(ProxyFactory.java:486)
+	at javassist.util.proxy.ProxyFactory.createClass1(ProxyFactory.java:422)
+	at javassist.util.proxy.ProxyFactory.createClass(ProxyFactory.java:394)
+	at org.hibernate.proxy.pojo.javassist.JavassistProxyFactory.postInstantiate(JavassistProxyFactory.java:72)
+	at org.hibernate.tuple.entity.PojoEntityTuplizer.buildProxyFactory(PojoEntityTuplizer.java:164)
+	at org.hibernate.tuple.entity.AbstractEntityTuplizer.<init>(AbstractEntityTuplizer.java:159)
+	at org.hibernate.tuple.entity.PojoEntityTuplizer.<init>(PojoEntityTuplizer.java:60)
+	... 174 more
 Caused by: javassist.bytecode.DuplicateMemberException: duplicate method: getHandler in com.bnpp.external.services.dao.beo.Deliveryhandler_$$_javassist_21
 	at javassist.bytecode.ClassFile.testExistingMethod(ClassFile.java:637)
 	at javassist.bytecode.ClassFile.addMethod(ClassFile.java:613)
 	at javassist.util.proxy.ProxyFactory.addGetter(ProxyFactory.java:898)
+	at javassist.util.proxy.ProxyFactory.make(ProxyFactory.java:717)
+	at javassist.util.proxy.ProxyFactory.createClass3(ProxyFactory.java:497)
+	... 181 more
+
+[26/05/23 9.36.02:739 CEST] 0000008a webapp        I com.ibm.ws.webcontainer.webapp.WebApp log SRVE0292I: Servlet Message - [jdf-mx-smsalert-ear#jdf-mx-smsalert-war.war]:.Initializing Spring root WebApplicationContext
+[26/05/23 9.36.02:906 CEST] 0000008a webcontainer  I com.ibm.ws.webcontainer.VirtualHostImpl addWebApplication SRVE0250I: Web Module SMS-jdf-webapp has been bound to default_host[*:9082,*:80,*:9445,*:5065,*:5064,*:443].
+[26/05/23 9.36.03:019 CEST] 0000008a ApplicationMg A   WSVR0221I: Application started: jdf-mx-smsalert-ear
+[26/05/23 9.36.03:019 CEST] 0000008a CompositionUn A   WSVR0191I: Composition unit WebSphere:cuname=jdf-mx-smsalert-ear in BLA WebSphere:blaname=jdf-mx-smsalert-ear started.
+
+
+Mi indichi come posso risolvere?
