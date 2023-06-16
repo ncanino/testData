@@ -1,1 +1,77 @@
 
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+
+@Configuration
+@EnableBatchProcessing
+@EnableScheduling
+public class BatchConfiguration {
+
+    @Autowired
+    private JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private JobLauncher jobLauncher;
+
+    @Bean
+    public JobLauncher jobLauncher() throws Exception {
+        SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+        jobLauncher.setJobRepository(jobRepository);
+        jobLauncher.afterPropertiesSet();
+        return jobLauncher;
+    }
+
+    @Bean
+    public Job myJob() {
+        return jobBuilderFactory.get("myJob")
+                .incrementer(new RunIdIncrementer())
+                .start(myStep())
+                .build();
+    }
+
+    @Bean
+    public Step myStep() {
+        return stepBuilderFactory.get("myStep")
+                .tasklet(myTasklet())
+                .build();
+    }
+
+    @Bean
+    public Tasklet myTasklet() {
+        return (contribution, chunkContext) -> {
+            // Implementa qui le tue operazioni del batch
+            System.out.println("Eseguo il batch alle 7 del mattino!");
+            // Esempio di operazione
+            System.out.println("Operazione 1");
+            System.out.println("Operazione 2");
+            System.out.println("Operazione 3");
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    @Bean
+    @Scheduled(cron = "0 0 7 * * *") // Esegue il batch alle 7:00 AM ogni giorno
+    public void cronSchedulerBean() throws Exception {
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addLong("time", System.currentTimeMillis())
+                .toJobParameters();
+        jobLauncher.run(myJob(), jobParameters);
+    }
+}
