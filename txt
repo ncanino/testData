@@ -1,1 +1,10 @@
 potrebbe essere utile cercare assistenza specifica sulla configurazione di WebSphere Application Server 9 o sulla configurazione di Spring Framework nel contesto di WebSphere.
+
+
+
+SELECT *
+FROM BNLTLPUSR.SUBSCRIPTION;
+
+ALTER TABLE BNLTLPUSR.SUBSCRIPTION
+ADD (colonna1 TIPO_DATO,
+     colonna2 TIPO_DATO);
