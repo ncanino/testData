@@ -8,3 +8,132 @@ FROM BNLTLPUSR.SUBSCRIPTION;
 ALTER TABLE BNLTLPUSR.SUBSCRIPTION
 ADD (colonna1 TIPO_DATO,
      colonna2 TIPO_DATO);
+
+
+
+ERROR CREATING APPLICATIONCONTEXT INSTANCE: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'integrationEvaluationContext': Invocation of init method failed; nested exception is org.springframework.beans.factory.CannotLoadBeanClassException: Cannot find class [org.springframework.beans.factory.config.CommonsLogFactoryBean] for bean with name 'smLogger' defined in file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\srvmgr-endpoint-context.xml]; nested exception is java.lang.ClassNotFoundException: org.springframework.beans.factory.config.CommonsLogFactoryBean
+[INFO ] [] [2023-06-21 10:48:13.124] JdfLogHelper.startupTrace: 69 - [] [] [] [] [] [] [] - Error during Context instantiation. Caused by:org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.bnpparibas.ate.core.context.ContextLocator' defined in class path resource [WEB-INF/config-contextlocator.xml]: Invocation of init method failed; nested exception is org.springframework.context.ApplicationContextException: Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'integrationEvaluationContext': 
+Invocation of init method failed; nested exception is org.springframework.beans.factory.CannotLoadBeanClassException: Cannot find class [org.springframework.beans.factory.config.CommonsLogFactoryBean] for bean with name 'smLogger' defined in file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\srvmgr-endpoint-context.xml]; nested exception is java.lang.ClassNotFoundException: org.springframework.beans.factory.config.CommonsLogFactoryBean
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/integration"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:http="http://www.springframework.org/schema/integration/http"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:ws="http://www.springframework.org/schema/integration/ws"
+	xmlns:jdf="http://www.bnpp.com/schema/jdf"
+	xmlns:jdf-http="http://www.bnpp.com/schema/jdf/http"	
+	xmlns:jdf-transformer="http://www.bnpp.com/schema/jdf/transformer"
+	xmlns:jdf-jms="http://www.bnpp.com/schema/jdf/jms"
+	xmlns:jdf-rmi="http://www.bnpp.com/schema/jdf/rmi"
+	xmlns:jdf-site="http://www.bnpp.com/schema/jdf/site"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+			http://www.springframework.org/schema/integration
+			http://www.springframework.org/schema/integration/spring-integration-4.3.xsd
+			http://www.springframework.org/schema/util
+			http://www.springframework.org/schema/util/spring-util.xsd
+			http://www.springframework.org/schema/context 
+            http://www.springframework.org/schema/context/spring-context.xsd
+ 			http://www.springframework.org/schema/integration/http
+            http://www.springframework.org/schema/integration/http/spring-integration-http-4.3.xsd            
+			http://www.springframework.org/schema/integration/ws
+			http://www.springframework.org/schema/integration/ws/spring-integration-ws-4.3.xsd
+			http://www.bnpp.com/schema/jdf
+			http://www.bnpp.com/schema/jdf/jdf-4.0.0.xsd
+			http://www.bnpp.com/schema/jdf/http
+			http://www.bnpp.com/schema/jdf/http/jdf-http-4.0.0.xsd
+			http://www.bnpp.com/schema/jdf/transformer
+			http://www.bnpp.com/schema/jdf/transformer/jdf-transformer-4.0.0.xsd
+			http://www.bnpp.com/schema/jdf/jms
+			http://www.bnpp.com/schema/jdf/jms/jdf-jms-4.0.0.xsd
+			http://www.bnpp.com/schema/jdf/rmi
+			http://www.bnpp.com/schema/jdf/rmi/jdf-rmi-4.0.0.xsd
+			http://www.bnpp.com/schema/jdf/site
+			http://www.bnpp.com/schema/jdf/site/jdf-site-4.0.0.xsd">
+					
+		<!-- based upon v2.0.0-RC2 -->
+		<!-- JdfLogger -->
+    <beans:bean id="smLogger" class="org.springframework.beans.factory.config.CommonsLogFactoryBean">
+        <beans:property name="logName" value="com.bnl"/>
+    </beans:bean>
+
+	<!-- EXTERNAL CASE -->
+	<jdf-transformer:outbound-transformers-chain source-message-format="xml" target-message-format="smxml">
+		<transformer ref="jdfByteToDocumentTransformer" method="transform" />
+		<transformer ref="jdfDocumentToSmDocTransformer" method="transform" />
+	</jdf-transformer:outbound-transformers-chain>
+
+	<jdf-transformer:inbound-transformers-chain source-message-format="smxml" target-message-format="xml">
+		<transformer ref="jdfByteToDocumentTransformer" method="transform"/>
+		<transformer ref="smDocToJdfDocumentTransformer" method="transform"/>
+		<transformer ref="jdfDocumentToByteTransformer" method="transform"/>
+	</jdf-transformer:inbound-transformers-chain>
+
+	<!-- LOCAL CASE -->	
+	<jdf-transformer:outbound-transformers-chain source-message-format="java" target-message-format="smxml">
+		<transformer ref="jdfObjectToDocumentTransformer" method="transform"/>
+		<transformer ref="jdfDocumentToSmDocTransformer" method="transform"/>
+	</jdf-transformer:outbound-transformers-chain>
+
+	<jdf-transformer:inbound-transformers-chain source-message-format="smxml" target-message-format="java">
+		<transformer ref="jdfByteToDocumentTransformer" method="transform"/>
+		<transformer ref="smDocToJdfDocumentTransformer" method="transform"/>
+		<transformer ref="jdfDocumentToObjectTransformer" method="transform"/>
+	</jdf-transformer:inbound-transformers-chain>
+		
+	<jdf:outbound-endpoint-activator
+		id="smHttpOutboundEndpointActivator" 
+		transport-protocol="http"
+		site-resolver-activator="jdfHttpSiteResolverActivator"
+		message-format="smxml"
+	/>
+	
+	<!-- WARNING: explicit name required for request-channel -->	
+	<jdf-http:outbound-gateway id="smxmlHttpOutboundEndpoint"
+		request-channel="smxml_http_OutboundRequestChannel"
+		reply-channel="inboundTransformersChain"
+		request-mapper="jdfHttpOutboundRequestMapper"
+		request-executor="jdfHttpRequestExecutor"
+		copy-http-headers="true"/>
+	
+	<!-- EXTERNAL CUSTOM TRANSFORMERS -->
+	<beans:bean id="jdfDocumentToSmDocTransformer" class="com.bnl.servicemanager.transformer.JdfToSMTransformer">
+		<beans:property name="logger" ref="smLogger"/>
+	</beans:bean>
+	<beans:bean id="smDocToJdfDocumentTransformer" class="com.bnl.servicemanager.transformer.SMToJdfTransformer">
+		<beans:property name="logger" ref="smLogger"/>
+	</beans:bean>
+
+  <!-- Set here the information about the target Service manager -->
+	<jdf-site:site-service-registry id="SM">
+		<jdf-site:http-outbound-site-info 
+			message-format="smxml"
+			protocol="http" 
+			ip-address="10.238.222.39"
+			port="80" 
+			relative-url="/ServiceManagerFE/JfwebServlet" /> 
+	</jdf-site:site-service-registry>
+	
+	<jdf-site:site-service-registry id="QA">
+		<jdf-site:soap-outbound-site-info
+			ip-address="10.238.222.19"
+			port="80"
+			protocol="http"
+			relative-url="/PrezDrvBE/DSALWS"
+			http-header-to-propagate="RSMHostAlias=smqapricelabcoll.bnl.echonet"
+			request-executor="SMSAlert.SoapExtServicesRequestExecutor"/>
+	</jdf-site:site-service-registry>
+
+	<jdf-site:http-request-executor
+		id="SMSAlert.SoapExtServicesRequestExecutor"
+		connection-manager-timeout="10000" 
+		maximum-connection-per-host="70"
+		overall-maximum-connection="140" 
+		connection-timeout="6000"
+		socket-timeout="10000" />
+
+</beans:beans>
