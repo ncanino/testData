@@ -2,12 +2,23 @@ potrebbe essere utile cercare assistenza specifica sulla configurazione di WebSp
 
 
 
-SELECT *
-FROM BNLTLPUSR.SUBSCRIPTION;
+BEGIN
+  SAVEPOINT before_alter;
 
-ALTER TABLE BNLTLPUSR.SUBSCRIPTION
-ADD (colonna1 TIPO_DATO,
-     colonna2 TIPO_DATO);
+  -- Aggiunta delle colonne
+  BEGIN
+    ALTER TABLE BNLTLPUSR.SUBSCRIPTION
+    ADD (SPORTELLO_CONTO VARCHAR2(100),
+         STATO_ACCORDI VARCHAR2(50));
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO before_alter;
+      RAISE;
+  END;
+
+  COMMIT;
+END;
+
 
 
 ERROR CREATING APPLICATIONCONTEXT INSTANCE: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'EricssonHttpInbound' defined in file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]: 
