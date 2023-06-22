@@ -2,34 +2,7 @@ potrebbe essere utile cercare assistenza specifica sulla configurazione di WebSp
 
 
 
-BEGIN
-  SAVEPOINT before_alter;
 
-  -- Aggiunta delle colonne
-  BEGIN
-    ALTER TABLE BNLTLPUSR.SUBSCRIPTION
-    ADD (SPORTELLO_CONTO VARCHAR2(100),
-         STATO_ACCORDI VARCHAR2(50));
-  EXCEPTION
-    WHEN OTHERS THEN
-      ROLLBACK TO before_alter;
-      RAISE;
-  END;
-
-  COMMIT;
-END;
-
-
-
-ERROR CREATING APPLICATIONCONTEXT INSTANCE: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'EricssonHttpInbound' defined in file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]: 
-Error setting property values; nested exception is org.springframework.beans.NotWritablePropertyException: Invalid property 'supportedMethodNames' of bean class [org.springframework.integration.http.inbound.HttpRequestHandlingController]: 
-Bean property 'supportedMethodNames' is not writable or has an invalid setter method. Does the parameter type of the setter match the return type of the getter?
-[INFO ] [] [2023-06-22 12:19:26.591] JdfLogHelper.startupTrace: 69 - [] [] [] [] [] [] [] - Error during Context instantiation. Caused by:org.springframework.beans.factory.BeanCreationException:
-Error creating bean with name 'com.bnpparibas.ate.core.context.ContextLocator' defined in class path resource [WEB-INF/config-contextlocator.xml]: Invocation of init method failed; nested exception is org.springframework.context.ApplicationContextException: 
-Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'EricssonHttpInbound' defined in file
-[C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]: Error setting property values; nested exception is org.springframework.beans.NotWritablePropertyException: 
-Invalid property 'supportedMethodNames' of bean class [org.springframework.integration.http.inbound.HttpRequestHandlingController]: 
-Bean property 'supportedMethodNames' is not writable or has an invalid setter method. Does the parameter type of the setter match the return type of the getter?
 
 
 	<beans:bean id="EricssonHttpInbound" class="org.springframework.integration.http.inbound.HttpRequestHandlingController">
@@ -47,5 +20,3 @@ Bean property 'supportedMethodNames' is not writable or has an invalid setter me
 	</beans:bean>
 
 
- ERROR CREATING APPLICATIONCONTEXT INSTANCE: org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line 59 in XML document from file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml] is invalid; nested exception is org.xml.sax.SAXParseException: cvc-complex-type.2.4.c: Il carattere jolly corrispondente è assoluto, ma non è stata trovata alcuna dichiarazione per l'elemento 'value'.
-[INFO ] [] [2023-06-22 13:52:59.122] JdfLogHelper.startupTrace: 69 - [] [] [] [] [] [] [] - Error during Context instantiation. Caused by:org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.bnpparibas.ate.core.context.ContextLocator' defined in class path resource [WEB-INF/config-contextlocator.xml]: Invocation of init method failed; nested exception is org.springframework.context.ApplicationContextException: Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line 59 in XML document from file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml] is invalid; nested exception is org.xml.sax.SAXParseException: cvc-complex-type.2.4.c: Il carattere jolly corrispondente è assoluto, ma non è stata trovata alcuna dichiarazione per l'elemento 'value'.
