@@ -35,18 +35,19 @@ Bean property 'supportedMethodNames' is not writable or has an invalid setter me
 xmlns:mvc="http://www.springframework.org/schema/mvc"
 xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd"
 
-
-<beans:bean id="EricssonHttpInbound" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
-    <beans:property name="supportedMethods">
-        <beans:list>
-            <beans:value>POST</beans:value>
-            <beans:value>GET</beans:value>
-        </beans:list>
-    </beans:property>
+<beans:bean id="EricssonHttpInbound" class="org.springframework.integration.http.inbound.HttpRequestHandlingController">
+    <beans:constructor-arg value="true" />
     <beans:property name="requestChannel" ref="sms_http_InboundRequestChannel" />
     <beans:property name="replyChannel" ref="sms_http_OutboundRequestChannel" />
     <beans:property name="replyKey" value="" />
     <beans:property name="viewName" value="textView" />
+    <beans:property name="requestMapping">
+        <beans:bean class="org.springframework.web.bind.annotation.RequestMapping">
+            <beans:property name="method" value="org.springframework.web.bind.annotation.RequestMethod.POST" />
+            <beans:property name="method" value="org.springframework.web.bind.annotation.RequestMethod.GET" />
+        </beans:bean>
+    </beans:property>
 </beans:bean>
+
 
 
