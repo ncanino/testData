@@ -1,3 +1,5 @@
+https://docs.spring.io/spring-integration/docs/4.3.4.RELEASE/reference/html/http.html
+
 xmlns:mvc="http://www.springframework.org/schema/mvc"
 xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd"
 
@@ -86,3 +88,38 @@ ERROR CREATING APPLICATIONCONTEXT INSTANCE: org.springframework.beans.factory.Be
 ERROR CREATING APPLICATIONCONTEXT INSTANCE: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'EricssonHttpInbound' defined in file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]: Error setting property values; nested exception is org.springframework.beans.NotWritablePropertyException: Invalid property 'supportedMethodNames' of bean class [org.springframework.integration.http.inbound.HttpRequestHandlingController]: Bean property 'supportedMethodNames' is not writable or has an invalid setter method. Does the parameter type of the setter match the return type of the getter?
 [INFO ] [] [2023-06-23 12:15:36.011] JdfLogHelper.startupTrace: 69 - [] [] [] [] [] [] [] - Error during Context instantiation. Caused by:org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.bnpparibas.ate.core.context.ContextLocator' defined in class path resource [WEB-INF/config-contextlocator.xml]: Invocation of init method failed; nested exception is org.springframework.context.ApplicationContextException: Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'EricssonHttpInbound' defined in file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]: Error setting property values; nested exception is org.springframework.beans.NotWritablePropertyException: Invalid property 'supportedMethodNames' of bean class [org.springframework.integration.http.inbound.HttpRequestHandlingController]: Bean property 'supportedMethodNames' is not writable or has an invalid setter method. Does the parameter type of the setter match the return type of the getter?
 
+
+*****************
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- Configurazione Spring MVC -->
+    <mvc:annotation-driven />
+
+    <!-- Configurazione del bean RequestMappingHandlerMapping -->
+    <bean id="handlerMapping" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+        <property name="order" value="1" />
+        <property name="supportedMethods">
+            <list>
+                <value>POST</value>
+                <value>GET</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Configurazione del bean EricssonHttpInbound -->
+    <bean id="EricssonHttpInbound" class="org.springframework.integration.http.inbound.HttpRequestHandlingController">
+        <constructor-arg value="true" />
+        <property name="requestChannel" ref="sms_http_InboundRequestChannel" />
+        <property name="replyChannel" ref="sms_http_OutboundRequestChannel" />
+        <property name="replyKey" value="" />
+        <property name="viewName" value="textView" />
+    </bean>
+
+    <!-- Altri bean e configurazioni -->
+
+</beans>
