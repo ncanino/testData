@@ -29,3 +29,18 @@ xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springf
         </beans:bean>
     </beans:property>
 </beans:bean>
+
+com.bnpp.jdf.core.exception.JdfBaseException: Error during Context instantiation: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.bnpparibas.ate.core.context.ContextLocator' defined in class path resource [WEB-INF/config-contextlocator.xml]: Invocation of init method failed; nested exception is org.springframework.context.ApplicationContextException: Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.parsing.BeanDefinitionParsingException: Configuration problem: Unexpected failure during bean definition parsing
+Offending resource: file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]
+Bean 'EricssonHttpInbound'; nested exception is org.springframework.beans.factory.parsing.BeanDefinitionParsingException: Configuration problem: Unexpected failure during bean definition parsing
+Offending resource: file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]
+Bean 'EricssonHttpInbound'
+	-> Property 'requestMapping'
+		-> Bean ''; nested exception is org.springframework.beans.factory.parsing.BeanDefinitionParsingException: Configuration problem: Multiple 'property' definitions for property 'method'
+Offending resource: file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]
+Bean 'EricssonHttpInbound'
+	-> Property 'requestMapping'
+		-> Bean ''
+			-> Property 'method'
+
+**********
