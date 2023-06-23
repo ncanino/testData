@@ -66,3 +66,19 @@ Bean 'EricssonHttpInbound'
 ERROR CREATING APPLICATIONCONTEXT INSTANCE: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'EricssonHttpInbound' defined in file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]: Cannot create inner bean 'org.springframework.web.bind.annotation.RequestMapping#19d5537f' of type [org.springframework.web.bind.annotation.RequestMapping] while setting bean property 'requestMapping'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.springframework.web.bind.annotation.RequestMapping#19d5537f' defined in file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]: Instantiation of bean failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.web.bind.annotation.RequestMapping]: Specified class is an interface
 [INFO ] [] [2023-06-23 12:02:17.228] JdfLogHelper.startupTrace: 69 - [] [] [] [] [] [] [] - Error during Context instantiation. Caused by:org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.bnpparibas.ate.core.context.ContextLocator' defined in class path resource [WEB-INF/config-contextlocator.xml]: Invocation of init method failed; nested exception is org.springframework.context.ApplicationContextException: Error creating ApplicationContext instance; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'EricssonHttpInbound' defined in file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]: Cannot create inner bean 'org.springframework.web.bind.annotation.RequestMapping#19d5537f' of type [org.springframework.web.bind.annotation.RequestMapping] while setting bean property 'requestMapping'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.springframework.web.bind.annotation.RequestMapping#19d5537f' defined in file [C:\CONFIG_MX_SMS_ALERT_JRF4\mx_config\environments-config\LOCAL\config\sal-ericsson-http-context.xml]: Instantiation of bean failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.web.bind.annotation.RequestMapping]: Specified class is an interface
 
+***********
+
+<beans:bean id="EricssonHttpInbound" class="org.springframework.integration.http.inbound.HttpRequestHandlingController">
+    <beans:constructor-arg value="true" />
+    <beans:property name="requestChannel" ref="sms_http_InboundRequestChannel" />
+    <beans:property name="replyChannel" ref="sms_http_OutboundRequestChannel" />
+    <beans:property name="replyKey" value="" />
+    <beans:property name="viewName" value="textView" />
+    <beans:property name="supportedMethodNames">
+        <beans:set>
+            <util:constant static-field="org.springframework.web.bind.annotation.RequestMethod.POST" />
+            <util:constant static-field="org.springframework.web.bind.annotation.RequestMethod.GET" />
+        </beans:set>
+    </beans:property>
+</beans:bean>
+
