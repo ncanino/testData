@@ -4,6 +4,13 @@ Instantiation of bean failed; nested exception is org.springframework.beans.Bean
         <beans:property name="logName" value="com.bnl"/>
     </beans:bean> 
 
+<beans:bean id="smLogger" class="org.slf4j.impl.Log4jLoggerFactory">
+    <beans:constructor-arg>
+        <beans:value>com.bnl</beans:value>
+    </beans:constructor-arg>
+</beans:bean>
+
+
 
 *********************************************************
 https://docs.spring.io/spring-integration/docs/4.3.4.RELEASE/reference/html/http.html
