@@ -3,7 +3,7 @@ Instantiation of bean failed; nested exception is org.springframework.beans.Bean
 <beans:bean id="smLogger" class="org.apache.commons.logging.LogFactory">
         <beans:property name="logName" value="com.bnl"/>
     </beans:bean> 
-
+org.springframework.beans.factory.config.CommonsLogFactoryBean
 <beans:bean id="smLogger" class="org.slf4j.impl.Log4jLoggerFactory">
     <beans:constructor-arg>
         <beans:value>com.bnl</beans:value>
