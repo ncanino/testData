@@ -1,3 +1,11 @@
+Instantiation of bean failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.apache.commons.logging.LogFactory]: Is it an abstract class?; nested exception is java.lang.InstantiationException
+
+<beans:bean id="smLogger" class="org.apache.commons.logging.LogFactory">
+        <beans:property name="logName" value="com.bnl"/>
+    </beans:bean> 
+
+
+*********************************************************
 https://docs.spring.io/spring-integration/docs/4.3.4.RELEASE/reference/html/http.html
 
 xmlns:mvc="http://www.springframework.org/schema/mvc"
