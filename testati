@@ -10,6 +10,10 @@ org.springframework.beans.factory.config.CommonsLogFactoryBean
     </beans:constructor-arg>
 </beans:bean>
 
+<beans:bean id="smLogger" class="org.apache.commons.logging.impl.LogFactoryImpl">
+    <beans:property name="logName" value="com.bnl" />
+</beans:bean>
+
 
 
 *********************************************************
